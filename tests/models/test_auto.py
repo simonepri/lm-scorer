@@ -1,4 +1,4 @@
-# pylint: disable=missing-module-docstring,missing-function-docstring,unused-variable,too-many-locals
+# pylint: disable=missing-module-docstring,missing-function-docstring,unused-variable,too-many-locals,too-many-statements
 import pytest  # pylint: disable=unused-import
 
 from lm_scorer.models.auto import AutoLMScorer as AutoLMScorer

@@ -1,4 +1,4 @@
-# pylint: disable=missing-module-docstring,missing-function-docstring,unused-variable,too-many-locals
+# pylint: disable=missing-module-docstring,missing-function-docstring,unused-variable,too-many-locals,too-many-statements
 import pytest  # pylint: disable=unused-import
 
 from lm_scorer.models.gpt2 import GPT2LMScorer
@@ -33,7 +33,21 @@ def describe_score_for_english():
     scorer = GPT2LMScorer("gpt2")
 
     def should_work_on_an_empty_sentence():
-        assert scorer.score("") == 0.0
+        score_1 = scorer.score("", return_log_prob=False)
+        assert 0.0 <= score_1 <= 1.0
+        score_2, token_scores = scorer.score(
+            "", return_log_prob=False, return_tokens=True
+        )
+        assert score_1 == score_2
+        assert token_scores == {"<|endoftext|>": score_2}
+
+        score_1 = scorer.score("", return_log_prob=True)
+        assert score_1 <= 0.0
+        score_2, token_scores = scorer.score(
+            "", return_tokens=True, return_log_prob=True
+        )
+        assert score_1 == score_2
+        assert token_scores == {"<|endoftext|>": score_2}
 
     def should_give_lower_score_to_sentences_with_adjectives_errors():
         # ERRANT - ADJ error

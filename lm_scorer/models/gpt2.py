@@ -20,9 +20,6 @@ class GPT2LMScorer(TransformersLMScorer):
     def score(
         self, text: str, return_log_prob: bool = True, return_tokens: bool = False
     ) -> Union[float, Tuple[float, Dict[str, float]]]:
-        if len(text) == 0:
-            return 0.0
-
         input_text = "%s%s%s" % (
             self.tokenizer.bos_token,
             text,
