@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lm-scorer"
-version = "0.0.0"
+version = "0.1.0"
 description = "Language Model based sentences scoring library"
 authors = ["Simone Primarosa <simonepri@outlook.com>"]
 license = "MIT"
