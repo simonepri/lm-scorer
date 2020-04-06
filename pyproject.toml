@@ -14,6 +14,9 @@ packages = [
   {include = "tests", from = ".", format = "sdist"},
 ]
 
+[tool.poetry.scripts]
+lm-scorer = 'lm_scorer.bin.cli:run'
+
 [tool.taskipy.tasks]
 lint = "python -m pylint lm_scorer tests -v --output-format colorized --disable duplicate-code,bad-continuation --generated-members=torch.*"
 types = "python -m mypy lm_scorer tests --ignore-missing-imports"
