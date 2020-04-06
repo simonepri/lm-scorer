@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "lm-scorer"
 version = "0.0.0"
-description = "Introduce errors in error free text"
+description = "Language Model based sentences scoring library"
 authors = ["Simone Primarosa <simonepri@outlook.com>"]
 license = "MIT"
 homepage = "https://github.com/simonepri/lm-scorer#readme"
