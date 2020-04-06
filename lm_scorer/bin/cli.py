@@ -18,7 +18,7 @@ def parse_args() -> argparse.Namespace:
         metavar="sentences-file-path",
         type=str,
         help="A file containing sentences to score, one per line."
-        "If - is given as filename it reads from stdin instead.",
+        " If - is given as filename it reads from stdin instead.",
     )
     parser.add_argument(
         "--model-name",
@@ -74,7 +74,7 @@ def main(args: argparse.Namespace) -> None:
             )  # type: Tuple[float, Dict[str, float]]  # type: ignore
             for token, score in token_scores.items():
                 print("%s\t%.5g" % (token, score))
-            print("\n")
+            print("")
     else:
         for sentence in sentences_stream:
             sentence = sentence.strip()
