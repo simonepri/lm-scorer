@@ -104,7 +104,7 @@ scorer.score("I like this package.", return_log_prob=False, return_tokens=True)
 
 ## CLI
 
-<img src="./media/cli.gif" alt="lm-scorer cli" width="300" align="right"/>
+<img src="./media/cli.gif" alt="lm-scorer cli" width="225" align="right"/>
 
 The pip package includes a CLI that you can use to score sentences.
 
