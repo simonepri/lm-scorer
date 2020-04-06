@@ -1,0 +1,34 @@
+name: lint
+
+on:
+  push:
+    branches: '*'
+  pull_request:
+    branches: '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Black & Pylint & Mypy
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: Install dependencies
+        run: |
+          python -m pip install -qq --upgrade pip
+          pip install -qq poetry
+          poetry install
+      - name: Check if files are correctly formatted with black
+        run: |
+          poetry run task format --check --diff
+      - name: Lint with pylint
+        run: |
+          poetry run task lint --disable=E --exit-zero
+          poetry run task lint -E
+      - name: Perform static type checking with mypy
+        run: |
+          poetry run task types

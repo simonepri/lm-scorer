@@ -8,20 +8,16 @@
   </a>
   <br />
   <!-- Lint -->
-  <a href="https://github.com/simonepri/lm-scorer/actions?query=workflow%3Alint">
+  <a href="https://github.com/simonepri/lm-scorer/actions?query=workflow:lint+branch:master">
     <img src="https://github.com/simonepri/lm-scorer/workflows/lint/badge.svg?branch=master" alt="Lint status" />
   </a>
   <!-- Test - macOS -->
-  <a href="https://github.com/simonepri/lm-scorer/actions?query=workflow%3Atest">
+  <a href="https://github.com/simonepri/lm-scorer/actions?query=workflow:test-macos+branch:master">
     <img src="https://github.com/simonepri/lm-scorer/workflows/test-macos/badge.svg?branch=master" alt="Test macOS status" />
   </a>
   <!-- Test - Ubuntu -->
-  <a href="https://github.com/simonepri/lm-scorer/actions?query=workflow%3Atest">
+  <a href="https://github.com/simonepri/lm-scorer/actions?query=workflow:test-ubuntu+branch:master">
     <img src="https://github.com/simonepri/lm-scorer/workflows/test-ubuntu/badge.svg?branch=master" alt="Test Ubuntu status" />
-  </a>
-  <!-- Test - Windows -->
-  <a href="https://github.com/simonepri/lm-scorer/actions?query=workflow%3Atest">
-    <img src="https://github.com/simonepri/lm-scorer/workflows/test-windows/badge.svg?branch=master" alt="Test Windows status" />
   </a>
   <br />
   <!-- Code style -->

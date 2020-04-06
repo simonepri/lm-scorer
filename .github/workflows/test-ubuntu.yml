@@ -1,0 +1,38 @@
+name: test-ubuntu
+
+on:
+  push:
+    branches: '*'
+  pull_request:
+    branches: '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: PyTest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7]
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set up huggingface transformers pre-trained models cache
+        uses: actions/cache@v1
+        with:
+          path: .transformers_cache
+          key: transformers_cache
+          restore-keys: transformers_cache
+      - name: Install poetry
+        run: |
+          python -m pip install -qq --upgrade pip
+          pip install -qq poetry
+      - name: Install dependencies
+        run: |
+          poetry install
+      - name: Test with pytest
+        run: |
+          poetry run task test
