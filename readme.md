@@ -54,6 +54,82 @@
   📃 Language Model based sentences scoring library
 </p>
 
+## Synopsis
+
+This package provides a simple programming interface to score sentences using different ML [language models](wiki:language-model).
+
+A simple [CLI](#cli) is also available for quick prototyping.
+
+## Install
+
+```bash
+pip install lm-scorer
+```
+
+## Usage
+
+```python
+from lm_scorer.models.auto import AutoLMScorer as LMScorer
+
+LMScorer.supported_model_names()
+# => ["gpt2", "gpt2-medium", "gpt2-large", "gpt2-xl", distilgpt2"]
+
+scorer = LMScorer.from_pretrained("gpt2")
+
+scorer.score("I like this package.")
+# => -25.835
+scorer.score("I like this package.", return_tokens=True)
+# => -25.835, {
+#   "I": -3.9997,
+#   "Ġlike": -5.0142,
+#   "Ġthis": -2.5178,
+#   "Ġpackage": -7.4062,
+#   ".": -1.2812,
+#   "<|endoftext|>": -5.6163,
+# }
+
+scorer.score("I like this package.", return_log_prob=False)
+# => 6.0231e-12
+scorer.score("I like this package.", return_log_prob=False, return_tokens=True)
+# => 6.0231e-12, {
+#   "I": 0.018321,
+#   "Ġlike": 0.0066431,
+#   "Ġthis": 0.080633,
+#   "Ġpackage": 0.00060745,
+#   ".": 0.27772,
+#   "<|endoftext|>": 0.0036381,
+# }
+
+```
+
+## CLI
+
+<img src="./media/cli.gif" alt="lm-scorer cli" width="300" align="right"/>
+
+The pip package includes a CLI that you can use to score sentences.
+
+```
+usage: lm-scorer [-h] [--model-name MODEL_NAME] [--tokens] [--log-prob]
+                 [--debug]
+                 sentences-file-path
+
+Get sentences probability using a language model.
+
+positional arguments:
+  sentences-file-path   A file containing sentences to score, one per line. If
+                        - is given as filename it reads from stdin instead.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --model-name MODEL_NAME, -m MODEL_NAME
+                        The pretrained language model to use. Can be one of:
+                        gpt2, gpt2-medium, gpt2-large, gpt2-xl, distilgpt2.
+  --tokens, -t          If provided it provides the probability of each token
+                        of each sentence.
+  --log-prob, -lp       If provided log probabilities are returned instead.
+  --debug               If provided it provides additional logging in case of
+                        errors.
+```
 
 ## Authors
 
@@ -70,7 +146,10 @@ This project is licensed under the MIT License - see the [license][license] file
 
 <!-- Links -->
 
+[start]: https://github.com/simonepri/lm-scorer#start-of-content
 [license]: https://github.com/simonepri/lm-scorer/tree/master/license
 [contributors]: https://github.com/simonepri/lm-scorer/contributors
+
+[wiki:language-model]: https://en.wikipedia.org/wiki/Language_model
 
 [github:simonepri]: https://github.com/simonepri
