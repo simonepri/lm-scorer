@@ -1,3 +1,6 @@
+### Custom ###
+.transformers_cache/
+
 # Created by https://www.gitignore.io/api/linux,macos,windows,python,venv
 # Edit at https://www.gitignore.io/?templates=linux,macos,windows,python,venv
 
