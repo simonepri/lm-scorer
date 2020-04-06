@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "lm-scorer"
+version = "0.0.0"
+description = "Introduce errors in error free text"
+authors = ["Simone Primarosa <simonepri@outlook.com>"]
+license = "MIT"
+homepage = "https://github.com/simonepri/lm-scorer#readme"
+repository = "https://github.com/simonepri/lm-scorer"
+readme = "readme.md"
+keywords = ["language", "model", "lm", "probability", "score"]
+
+packages = [
+  {include = "lm_scorer", from = "."},
+  {include = "tests", from = ".", format = "sdist"},
+]
+
+[tool.taskipy.tasks]
+lint = "python -m pylint lm_scorer tests -v --output-format colorized --disable duplicate-code,bad-continuation --generated-members=torch.*"
+types = "python -m mypy lm_scorer tests --ignore-missing-imports"
+format = "python -m black lm_scorer tests"
+test = "python -m pytest --cov=lm_scorer tests --verbose"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+
+[tool.poetry.dev-dependencies]
+taskipy = "^1.2.0"
+black = "~19.10b0"
+pylint = "^2.4.4"
+mypy = "~0.770"
+pytest = "^5.4.1"
+pytest-cov = "^2.8.1"
+pytest-mock = "^3.0.0"
+# See https://github.com/Teemu/pytest-sugar/pull/188
+pytest-sugar = {git = "https://github.com/GuillaumeFavelier/pytest-sugar.git", rev = "b56fed42d5c3022ff507ab6ce81cda65a3a5f92a"}
+# See https://github.com/ropez/pytest-describe/pull/27
+pytest-describe = {git = "https://github.com/jacebrowning/pytest-describe.git", rev = "43245ecfc3c432c4bfb5b12f8868790c7f2ebe5d"}
+
+[build-system]
+requires = ["poetry >=1,<2"]
+build-backend = "poetry.masonry.api"
