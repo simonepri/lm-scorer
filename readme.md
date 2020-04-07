@@ -6,6 +6,9 @@
   <a href="https://pypi.org/project/lm-scorer">
     <img src="https://img.shields.io/pypi/v/lm-scorer.svg" alt="PyPi version" />
   </a>
+  <a href="https://colab.research.google.com/github/simonepri/lm-scorer/blob/master/examples/lm_scorer.ipynb">
+    <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab" />
+  </a>
   <br />
   <!-- Lint -->
   <a href="https://github.com/simonepri/lm-scorer/actions?query=workflow:lint+branch:master">
@@ -58,7 +61,8 @@
 
 This package provides a simple programming interface to score sentences using different ML [language models](wiki:language-model).
 
-A simple [CLI](#cli) is also available for quick prototyping.
+A simple [CLI](#cli) is also available for quick prototyping.  
+You can run it locally or on directly on Colab using [this notebook][colab:lm-scorer].
 
 Do you believe that this is *useful*?
 Has it *saved you time*?
@@ -187,6 +191,8 @@ This project is licensed under the MIT License - see the [license][license] file
 [start]: https://github.com/simonepri/lm-scorer#start-of-content
 [license]: https://github.com/simonepri/lm-scorer/tree/master/license
 [contributors]: https://github.com/simonepri/lm-scorer/contributors
+
+[colab:lm-scorer]: https://colab.research.google.com/github/simonepri/lm-scorer/blob/master/examples/lm_scorer.ipynb
 
 [wiki:language-model]: https://en.wikipedia.org/wiki/Language_model
 
