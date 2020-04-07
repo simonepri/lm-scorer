@@ -1,8 +1,8 @@
 # pylint: disable=missing-module-docstring,missing-function-docstring,unused-variable,too-many-locals,too-many-statements
 import pytest  # pylint: disable=unused-import
 
-from lm_scorer.models.auto import AutoLMScorer as AutoLMScorer
-from lm_scorer.models.gpt2 import GPT2LMScorer as GPT2LMScorer
+from lm_scorer.models.auto import AutoLMScorer
+from lm_scorer.models.gpt2 import GPT2LMScorer
 
 
 def assert_score_of_sentence_pairs(scorer, sentence_pairs):

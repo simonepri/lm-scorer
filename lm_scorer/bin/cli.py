@@ -89,15 +89,15 @@ def main(args: argparse.Namespace) -> None:
 
 def run() -> None:
     try:
-        ARGS = parse_args()
+        args = parse_args()
 
-        normalize_args(ARGS)
-        validate_args(ARGS)
-        main(ARGS)
+        normalize_args(args)
+        validate_args(args)
+        main(args)
     except KeyboardInterrupt:
         print("\nAborted!")
     except Exception as err:  # pylint: disable=broad-except
-        if ARGS.debug:
+        if args.debug:
             raise
         print("Error: %s" % err)
 
