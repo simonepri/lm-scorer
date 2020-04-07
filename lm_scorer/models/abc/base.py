@@ -3,11 +3,11 @@ from abc import ABC, abstractmethod
 
 
 class LMScorer(ABC):
-    def __init__(self, model_name: str, **kwargs: str) -> None:
+    def __init__(self, model_name: str, **kwargs: Any) -> None:
         self.build(model_name, kwargs)
 
     @abstractmethod
-    def build(self, model_name: str, options: Dict[str, str]) -> None:
+    def build(self, model_name: str, options: Dict[str, Any]) -> None:
         ...  # pragma: no cover
 
     @abstractmethod

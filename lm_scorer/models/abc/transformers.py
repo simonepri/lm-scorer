@@ -10,7 +10,7 @@ from .base import LMScorer
 class TransformersLMScorer(LMScorer):
     # @overrides
     @abstractmethod
-    def build(self, model_name: str, options: Dict[str, str]) -> None:
+    def build(self, model_name: str, options: Dict[str, Any]) -> None:
         super().build(model_name, options)
 
         #  Make transformers cache path configurable.

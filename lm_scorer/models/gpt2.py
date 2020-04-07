@@ -8,7 +8,7 @@ from .abc.transformers import TransformersLMScorer
 
 class GPT2LMScorer(TransformersLMScorer):
     # @overrides
-    def build(self, model_name: str, options: Dict[str, str]) -> None:
+    def build(self, model_name: str, options: Dict[str, Any]) -> None:
         super().build(model_name, options)
 
         # pylint: disable=attribute-defined-outside-init
