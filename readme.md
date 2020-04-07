@@ -136,6 +136,39 @@ optional arguments:
                         errors.
 ```
 
+
+## Development
+
+You can install this library locally for development using the commands below.
+If you don't have it already, you need to install [poetry](https://python-poetry.org/docs/#installation) first.
+
+```bash
+# Clone the repo
+git clone https://github.com/simonepri/lm-scorer
+# CD into the created folder
+cd lm-scorer
+# Create a virtualenv and install the required dependencies using poetry
+poetry install
+```
+
+You can then run commands inside the virtualenv by using `poetry run COMMAND`.  
+Alternatively you can open a shell inside the virtualenv using `poetry shell`.
+
+
+If you wish to contribute to this project, run the following commands locally before opening a PR and check that no error is reported (warnings are fine).
+
+```bash
+# Run the code formatter
+poetry run task format
+# Run the linter
+poetry run task lint
+# Run the static type checker
+poetry run task types
+# Run the tests
+poetry run task tests
+```
+
+
 ## Authors
 
 - **Simone Primarosa** - [simonepri][github:simonepri]
