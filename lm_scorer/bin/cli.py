@@ -6,6 +6,8 @@ import argparse
 import os
 import sys
 
+import torch
+
 from ..models.auto import AutoLMScorer as LMScorer
 
 
@@ -41,6 +43,12 @@ def parse_args() -> argparse.Namespace:
         help="If provided log probabilities are returned instead.",
     )
     parser.add_argument(
+        "--cuda",
+        type=int,
+        default=-1,
+        help="If provided it runs the model on the given cuda device.",
+    )
+    parser.add_argument(
         "--debug",
         action="store_true",
         help="If provided it provides additional logging in case of errors.",
@@ -58,6 +66,13 @@ def validate_args(args: argparse.Namespace) -> None:
         if not os.path.isfile(args.sentences_file_path):
             raise ValueError("The provided sentences file path is invalid.")
 
+    if args.cuda >= 0 and not torch.cuda.is_available():
+        raise ValueError("No Cuda device found.")
+
+    if args.cuda >= torch.cuda.device_count():
+        device_count = torch.cuda.device_count()
+        raise ValueError("Invalid Cuda device: %d/%d." % (args.cuda, device_count))
+
 
 def main(args: argparse.Namespace) -> None:
     if args.sentences_file_path == "-":
@@ -65,7 +80,9 @@ def main(args: argparse.Namespace) -> None:
     else:
         sentences_stream = open(args.sentences_file_path, "r")
 
-    scorer = LMScorer.from_pretrained(args.model_name)
+    device = torch.device("cuda:%d" % args.cuda if args.cuda else "cpu")
+    scorer = LMScorer.from_pretrained(args.model_name, device=device)
+
     if args.tokens:
         for sentence in sentences_stream:
             sentence = sentence.strip()

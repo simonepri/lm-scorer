@@ -15,11 +15,14 @@ class GPT2LMScorer(TransformersLMScorer):
         self.tokenizer = GPT2Tokenizer.from_pretrained(model_name, **options)
         self.model = GPT2LMHeadModel.from_pretrained(model_name, **options)
         self.model.eval()
+        if "device" in options:
+            self.model.to(options["device"])
 
     # @overrides
     def score(
         self, text: str, return_log_prob: bool = True, return_tokens: bool = False
     ) -> Union[float, Tuple[float, Dict[str, float]]]:
+        device = self.model.device
         input_text = "%s%s%s" % (
             self.tokenizer.bos_token,
             text,
@@ -28,7 +31,7 @@ class GPT2LMScorer(TransformersLMScorer):
         tokens = self.tokenizer.tokenize(input_text)
         # ids.shape = [1, seq_len + 2]
         ids = torch.LongTensor(
-            [self.tokenizer.convert_tokens_to_ids(tokens)]
+            [self.tokenizer.convert_tokens_to_ids(tokens)], device=device
         )  # type: torch.Tensor # type: ignore
 
         with torch.no_grad():
