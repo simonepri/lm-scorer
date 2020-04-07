@@ -60,6 +60,11 @@ This package provides a simple programming interface to score sentences using di
 
 A simple [CLI](#cli) is also available for quick prototyping.
 
+Do you believe that this is *useful*?
+Has it *saved you time*?
+Or maybe you simply *like it*?  
+If so, [support this work with a Star ⭐️][start].
+
 ## Install
 
 ```bash
