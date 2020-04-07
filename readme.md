@@ -152,7 +152,7 @@ poetry install
 ```
 
 You can then run commands inside the virtualenv by using `poetry run COMMAND`.  
-Alternatively you can open a shell inside the virtualenv using `poetry shell`.
+Alternatively, you can open a shell inside the virtualenv using `poetry shell`.
 
 
 If you wish to contribute to this project, run the following commands locally before opening a PR and check that no error is reported (warnings are fine).
