@@ -5,17 +5,6 @@ from lm_scorer.models.auto import AutoLMScorer
 from lm_scorer.models.gpt2 import GPT2LMScorer
 
 
-def assert_score_of_sentence_pairs(scorer, sentence_pairs):
-    errors = []
-    for i, sentence_pair in enumerate(sentence_pairs):
-        correct_sentence, wrong_sentence = sentence_pair
-        correct_score = scorer.score(correct_sentence)
-        wrong_score = scorer.score(wrong_sentence)
-        if not correct_score > wrong_score:
-            errors.append(i)
-    assert errors == []
-
-
 def describe_init():
     def should_throw_an_exception_when_called():
         with pytest.raises(EnvironmentError):
