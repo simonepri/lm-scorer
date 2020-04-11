@@ -80,7 +80,7 @@ def main(args: argparse.Namespace) -> None:
     else:
         sentences_stream = open(args.sentences_file_path, "r")
 
-    device = torch.device("cuda:%d" % args.cuda if args.cuda else "cpu")
+    device = torch.device("cuda:%d" % args.cuda if args.cuda >= 0 else "cpu")
     scorer = LMScorer.from_pretrained(args.model_name, device=device)
 
     if args.tokens:
