@@ -30,9 +30,11 @@ class GPT2LMScorer(TransformersLMScorer):
         )
         tokens = self.tokenizer.tokenize(input_text)
         # ids.shape = [1, seq_len + 2]
-        ids = torch.LongTensor(
-            [self.tokenizer.convert_tokens_to_ids(tokens)], device=device
-        )  # type: torch.Tensor # type: ignore
+        ids = torch.tensor(  # pylint: disable=not-callable
+            [self.tokenizer.convert_tokens_to_ids(tokens)],
+            device=device,
+            dtype=torch.long,
+        )
 
         with torch.no_grad():
             outputs = self.model(ids)
