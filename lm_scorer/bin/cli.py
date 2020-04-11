@@ -83,22 +83,16 @@ def main(args: argparse.Namespace) -> None:
     device = torch.device("cuda:%d" % args.cuda if args.cuda >= 0 else "cpu")
     scorer = LMScorer.from_pretrained(args.model_name, device=device)
 
-    if args.tokens:
-        for sentence in sentences_stream:
-            sentence = sentence.strip()
-            _, token_scores = scorer.score(
-                sentence, return_log_prob=args.log_prob, return_tokens=True
-            )  # type: Tuple[float, Dict[str, float]]  # type: ignore
-            for token, score in token_scores.items():
+    for sentence in sentences_stream:
+        sentence = sentence.strip()
+        sent_score = scorer.sentence_score(sentence, log=args.log_prob)
+        print("%s\t%.5g" % (sentence, sent_score))
+
+        if args.tokens:
+            scores, _, tokens = scorer.tokens_score(sentence, log=args.log_prob)
+            for score, token in zip(scores, tokens):
                 print("%s\t%.5g" % (token, score))
             print("")
-    else:
-        for sentence in sentences_stream:
-            sentence = sentence.strip()
-            sent_score = scorer.score(
-                sentence, return_log_prob=args.log_prob
-            )  # type: float  # type: ignore
-            print("%s\t%.5g" % (sentence, sent_score))
 
     if args.sentences_file_path != "-":
         sentences_stream.close()

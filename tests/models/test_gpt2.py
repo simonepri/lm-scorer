@@ -8,8 +8,8 @@ def assert_score_of_sentence_pairs(scorer, sentence_pairs):
     errors = []
     for i, sentence_pair in enumerate(sentence_pairs):
         correct_sentence, wrong_sentence = sentence_pair
-        correct_score = scorer.score(correct_sentence)
-        wrong_score = scorer.score(wrong_sentence)
+        correct_score = scorer.sentence_score(correct_sentence)
+        wrong_score = scorer.sentence_score(wrong_sentence)
         if not correct_score > wrong_score:
             errors.append(i)
     assert errors == []
@@ -29,25 +29,36 @@ def describe_supported_model_names():
         assert len(list(GPT2LMScorer.supported_model_names())) > 0
 
 
-def describe_score_for_english():
+def describe_sentence_score():
     scorer = GPT2LMScorer("gpt2")
 
     def should_work_on_an_empty_sentence():
-        score_1 = scorer.score("", return_log_prob=False)
-        assert 0.0 <= score_1 <= 1.0
-        score_2, token_scores = scorer.score(
-            "", return_log_prob=False, return_tokens=True
-        )
-        assert score_1 == score_2
-        assert token_scores == {"<|endoftext|>": score_2}
+        score = scorer.sentence_score("", log=False)
+        assert 0.0 <= score <= 1.0
 
-        score_1 = scorer.score("", return_log_prob=True)
-        assert score_1 <= 0.0
-        score_2, token_scores = scorer.score(
-            "", return_tokens=True, return_log_prob=True
-        )
-        assert score_1 == score_2
-        assert token_scores == {"<|endoftext|>": score_2}
+        score = scorer.sentence_score("", log=True)
+        assert score <= 0.0
+
+
+def describe_tokens_score():
+    scorer = GPT2LMScorer("gpt2")
+
+    def should_work_on_an_empty_sentence():
+        scores, ids, tokens = scorer.tokens_score("", log=False)
+        assert len(scores) == 1, scores
+        assert len(ids) == 1, ids
+        assert len(tokens) == 1, tokens
+        assert 0.0 <= scores[0] <= 1.0
+
+        scores, ids, tokens = scorer.tokens_score("", log=True)
+        assert len(scores) == 1, scores
+        assert len(ids) == 1, ids
+        assert len(tokens) == 1, tokens
+        assert scores[0] <= 0.0
+
+
+def describe_sentence_score_for_english():
+    scorer = GPT2LMScorer("gpt2")
 
     def should_give_lower_score_to_sentences_with_adjectives_errors():
         # ERRANT - ADJ error

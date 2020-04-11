@@ -8,8 +8,8 @@ from .abc.transformers import TransformersLMScorer
 
 class GPT2LMScorer(TransformersLMScorer):
     # @overrides
-    def build(self, model_name: str, options: Dict[str, Any]) -> None:
-        super().build(model_name, options)
+    def _build(self, model_name: str, options: Dict[str, Any]) -> None:
+        super()._build(model_name, options)
 
         # pylint: disable=attribute-defined-outside-init
         self.tokenizer = GPT2Tokenizer.from_pretrained(model_name)
@@ -19,15 +19,16 @@ class GPT2LMScorer(TransformersLMScorer):
             self.model.to(options["device"])
 
     # @overrides
-    def score(
-        self, text: str, return_log_prob: bool = True, return_tokens: bool = False
-    ) -> Union[float, Tuple[float, Dict[str, float]]]:
+    def _tokens_log_prob(
+        self, text: str
+    ) -> Tuple[torch.FloatTensor, torch.LongTensor, List[str]]:
         device = self.model.device
         input_text = "%s%s%s" % (
             self.tokenizer.bos_token,
             text,
             self.tokenizer.eos_token,
         )
+        # len(tokens) = seq_len + 2
         tokens = self.tokenizer.tokenize(input_text)
         # ids.shape = [1, seq_len + 2]
         ids = torch.tensor(  # pylint: disable=not-callable
@@ -42,6 +43,8 @@ class GPT2LMScorer(TransformersLMScorer):
         # pred_scores.shape = [1, seq_len + 2, vocab_size]
         pred_scores = outputs[0]
 
+        # len(tokens) = seq_len + 1
+        tokens = tokens[1:]
         # ids.shape = [1, seq_len + 1, vocab_size]
         ids = ids[:, 1:]
         # pred_scores.shape = [1, seq_len + 1, vocab_size]
@@ -52,19 +55,9 @@ class GPT2LMScorer(TransformersLMScorer):
         # log_prob.shape = [1, seq_len + 1]
         log_probs = ids_scores - pred_scores.logsumexp(2)
 
-        # scores.shape = [1]
-        scores = log_probs.sum(1) if return_log_prob else log_probs.sum(1).exp()
-
-        ret = scores[0].item()
-
-        if return_tokens:
-            # token_scores.shape = [1, seq_len + 1]
-            token_scores = log_probs if return_log_prob else log_probs.exp()
-            ret = (ret, dict(zip(tokens[1:], token_scores[0].tolist())))
-
-        return ret
+        return log_probs[0], ids[0], tokens  # type: ignore
 
     # @overrides
     @classmethod
-    def supported_model_names(cls) -> Iterable[str]:
+    def _supported_model_names(cls) -> Iterable[str]:
         return GPT2LMHeadModel.pretrained_model_archive_map.keys()
