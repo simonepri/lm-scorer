@@ -35,9 +35,23 @@ def describe_sentence_score():
     def should_work_on_an_empty_sentence():
         score = scorer.sentence_score("", log=False)
         assert 0.0 <= score <= 1.0
+        score = scorer.sentence_score("", reduce="mean", log=False)
+        assert 0.0 <= score <= 1.0
+        score = scorer.sentence_score("", reduce="gmean", log=False)
+        assert 0.0 <= score <= 1.0
+        score = scorer.sentence_score("", reduce="hmean", log=False)
+        assert 0.0 <= score <= 1.0
 
         score = scorer.sentence_score("", log=True)
         assert score <= 0.0
+        score = scorer.sentence_score("", reduce="mean", log=True)
+        assert score <= 0.0
+        score = scorer.sentence_score("", reduce="gmean", log=True)
+        assert score <= 0.0
+        score = scorer.sentence_score("", reduce="hmean", log=True)
+        assert score <= 0.0
+
+    # TODO: Test the various reducing strategies by mocking the _tokens_log_prob call.
 
 
 def describe_tokens_score():

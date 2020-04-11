@@ -1,6 +1,8 @@
 from typing import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from abc import ABC, abstractmethod
 
+import math
+
 import torch
 
 
@@ -8,10 +10,22 @@ class LMScorer(ABC):
     def __init__(self, model_name: str, **kwargs: Any) -> None:
         self._build(model_name, kwargs)
 
-    def sentence_score(self, text: str, log: bool = False) -> float:
+    def sentence_score(
+        self, text: str, log: bool = False, reduce: str = "prod"
+    ) -> float:
         log_probs, _, _ = self._tokens_log_prob(text)
+        tlen = log_probs.shape[0]
 
-        score = log_probs.sum()
+        if reduce == "prod":
+            score = log_probs.sum()
+        elif reduce == "mean":
+            score = log_probs.logsumexp(0) - math.log(tlen)
+        elif reduce == "gmean":
+            score = log_probs.mean(0)
+        elif reduce == "hmean":
+            score = log_probs.neg().logsumexp(0).neg() + math.log(tlen)
+        else:
+            raise ValueError("Unrecognized scoring strategy: %s" % reduce)
 
         if not log:
             score = score.exp()

@@ -43,6 +43,14 @@ def parse_args() -> argparse.Namespace:
         help="If provided log probabilities are returned instead.",
     )
     parser.add_argument(
+        "--reduce",
+        "-r",
+        type=str,
+        default="prod",
+        help="Reduce strategy applied on token probabilities to get the sentence score."
+        " Available strategies are: prod, mean, gmean, hmean.",
+    )
+    parser.add_argument(
         "--cuda",
         type=int,
         default=-1,
@@ -85,7 +93,9 @@ def main(args: argparse.Namespace) -> None:
 
     for sentence in sentences_stream:
         sentence = sentence.strip()
-        sent_score = scorer.sentence_score(sentence, log=args.log_prob)
+        sent_score = scorer.sentence_score(
+            sentence, log=args.log_prob, reduce=args.reduce
+        )
         print("%s\t%.5g" % (sentence, sent_score))
 
         if args.tokens:
