@@ -12,8 +12,8 @@ class GPT2LMScorer(TransformersLMScorer):
         super().build(model_name, options)
 
         # pylint: disable=attribute-defined-outside-init
-        self.tokenizer = GPT2Tokenizer.from_pretrained(model_name, **options)
-        self.model = GPT2LMHeadModel.from_pretrained(model_name, **options)
+        self.tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+        self.model = GPT2LMHeadModel.from_pretrained(model_name)
         self.model.eval()
         if "device" in options:
             self.model.to(options["device"])
