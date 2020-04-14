@@ -78,37 +78,41 @@ pip install lm-scorer
 ## Usage
 
 ```python
+import torch
 from lm_scorer.models.auto import AutoLMScorer as LMScorer
 
-LMScorer.supported_model_names()
+# Available models
+list(LMScorer.supported_model_names())
 # => ["gpt2", "gpt2-medium", "gpt2-large", "gpt2-xl", distilgpt2"]
 
-scorer = LMScorer.from_pretrained("gpt2")
+# Load model the model to cpu or cuda
+device = "cuda:0" if torch.cuda.is_available() else "cpu"
+scorer = LMScorer.from_pretrained("gpt2", device=device)
 
-scorer.score("I like this package.")
-# => -25.835
-scorer.score("I like this package.", return_tokens=True)
-# => -25.835, {
-#   "I": -3.9997,
-#   "Ġlike": -5.0142,
-#   "Ġthis": -2.5178,
-#   "Ġpackage": -7.4062,
-#   ".": -1.2812,
-#   "<|endoftext|>": -5.6163,
-# }
+# Return token probabilities (provide log=True to return log probabilities)
+scorer.tokens_score("I like this package.")
+# => (scores, ids, tokens)
+# scores = [0.018321, 0.0066431, 0.080633, 0.00060745, 0.27772, 0.0036381]
+# ids    = [40,       588,       428,      5301,       13,      50256]
+# tokens = ["I",      "Ġlike",   "Ġthis",  "Ġpackage", ".",     "<|endoftext|>"]
 
-scorer.score("I like this package.", return_log_prob=False)
+# Compute sentence score as the product of the tokens' probabilities
+scorer.sentence_score("I like this package.", reduce="prod")
 # => 6.0231e-12
-scorer.score("I like this package.", return_log_prob=False, return_tokens=True)
-# => 6.0231e-12, {
-#   "I": 0.018321,
-#   "Ġlike": 0.0066431,
-#   "Ġthis": 0.080633,
-#   "Ġpackage": 0.00060745,
-#   ".": 0.27772,
-#   "<|endoftext|>": 0.0036381,
-# }
 
+# Compute sentence score as the mean of the tokens' probabilities
+scorer.sentence_score("I like this package.", reduce="mean")
+# => 0.064593
+
+# Compute sentence score as the geometric mean of the tokens' probabilities
+scorer.sentence_score("I like this package.", reduce="gmean")
+# => 0.013489
+
+# Compute sentence score as the harmonic mean of the tokens' probabilities
+scorer.sentence_score("I like this package.", reduce="hmean")
+# => 0.0028008
+
+# NB: Computations are done in log space so they should be numerically stable.
 ```
 
 ## CLI
@@ -119,7 +123,7 @@ The pip package includes a CLI that you can use to score sentences.
 
 ```
 usage: lm-scorer [-h] [--model-name MODEL_NAME] [--tokens] [--log-prob]
-                 [--debug]
+                 [--reduce REDUCE] [--cuda CUDA] [--debug]
                  sentences-file-path
 
 Get sentences probability using a language model.
@@ -136,6 +140,12 @@ optional arguments:
   --tokens, -t          If provided it provides the probability of each token
                         of each sentence.
   --log-prob, -lp       If provided log probabilities are returned instead.
+  --reduce REDUCE, -r REDUCE
+                        Reduce strategy applied on token probabilities to get
+                        the sentence score. Available strategies are: prod,
+                        mean, gmean, hmean.
+  --cuda CUDA           If provided it runs the model on the given cuda
+                        device.
   --debug               If provided it provides additional logging in case of
                         errors.
 ```
