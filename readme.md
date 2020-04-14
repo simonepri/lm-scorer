@@ -85,7 +85,7 @@ from lm_scorer.models.auto import AutoLMScorer as LMScorer
 list(LMScorer.supported_model_names())
 # => ["gpt2", "gpt2-medium", "gpt2-large", "gpt2-xl", distilgpt2"]
 
-# Load model the model to cpu or cuda
+# Load model to cpu or cuda
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 scorer = LMScorer.from_pretrained("gpt2", device=device)
 
@@ -96,19 +96,19 @@ scorer.tokens_score("I like this package.")
 # ids    = [40,       588,       428,      5301,       13,      50256]
 # tokens = ["I",      "Ġlike",   "Ġthis",  "Ġpackage", ".",     "<|endoftext|>"]
 
-# Compute sentence score as the product of the tokens' probabilities
+# Compute sentence score as the product of tokens' probabilities
 scorer.sentence_score("I like this package.", reduce="prod")
 # => 6.0231e-12
 
-# Compute sentence score as the mean of the tokens' probabilities
+# Compute sentence score as the mean of tokens' probabilities
 scorer.sentence_score("I like this package.", reduce="mean")
 # => 0.064593
 
-# Compute sentence score as the geometric mean of the tokens' probabilities
+# Compute sentence score as the geometric mean of tokens' probabilities
 scorer.sentence_score("I like this package.", reduce="gmean")
 # => 0.013489
 
-# Compute sentence score as the harmonic mean of the tokens' probabilities
+# Compute sentence score as the harmonic mean of tokens' probabilities
 scorer.sentence_score("I like this package.", reduce="hmean")
 # => 0.0028008
 
