@@ -37,8 +37,7 @@ mypy = "~0.770"
 pytest = "^5.4.1"
 pytest-cov = "^2.8.1"
 pytest-mock = "^3.0.0"
-# See https://github.com/Teemu/pytest-sugar/pull/188
-pytest-sugar = {git = "https://github.com/GuillaumeFavelier/pytest-sugar.git", rev = "b56fed42d5c3022ff507ab6ce81cda65a3a5f92a"}
+pytest-sugar = "~0.9.3"
 pytest-describe = "^1.0.0"
 
 [build-system]
