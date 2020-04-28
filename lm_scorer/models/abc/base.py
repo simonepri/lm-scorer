@@ -11,31 +11,38 @@ class LMScorer(ABC):
         self._build(model_name, kwargs)
 
     def sentence_score(
-        self, text: str, log: bool = False, reduce: str = "prod"
-    ) -> float:
-        log_probs, _, _ = self._tokens_log_prob(text)
-        tlen = log_probs.shape[0]
+        self, sentences: Union[str, Iterable[str]], log: bool = False, reduce: str = "prod"
+    ) -> Union[float, List[float]]:
+        sentences = [sentences] if type(sentences) == str else sentences
+        outputs = self._tokens_log_prob(sentences)
 
-        if reduce == "prod":
-            score = log_probs.sum()
-        elif reduce == "mean":
-            score = log_probs.logsumexp(0) - math.log(tlen)
-        elif reduce == "gmean":
-            score = log_probs.mean(0)
-        elif reduce == "hmean":
-            score = log_probs.neg().logsumexp(0).neg() + math.log(tlen)
-        else:
-            raise ValueError("Unrecognized scoring strategy: %s" % reduce)
+        scores = []
+        for output in outputs:
+            log_probs = output[0]
+            tlen = log_probs.shape[0]
 
-        if not log:
-            score = score.exp()
+            if reduce == "prod":
+                score = log_probs.sum()
+            elif reduce == "mean":
+                score = log_probs.logsumexp(0) - math.log(tlen)
+            elif reduce == "gmean":
+                score = log_probs.mean(0)
+            elif reduce == "hmean":
+                score = log_probs.neg().logsumexp(0).neg() + math.log(tlen)
+            else:
+                raise ValueError("Unrecognized scoring strategy: %s" % reduce)
 
-        return score.item()
+            if not log:
+                score = score.exp()
+
+            scores.append(score.item())
+
+        return scores[0] if len(scores) == 1 else scores
 
     def tokens_score(
         self, text: str, log: bool = False
     ) -> Tuple[List[float], List[int], List[str]]:
-        log_probs, ids, tokens = self._tokens_log_prob(text)
+        log_probs, ids, tokens = self._tokens_log_prob(text)[0]
 
         scores = log_probs  # type: torch.Tensor # type: ignore
         if not log:
