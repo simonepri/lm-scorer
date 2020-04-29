@@ -1,7 +1,6 @@
 from typing import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 import torch
-import copy
 from transformers import BertForMaskedLM, BertTokenizer
 
 from .abc.transformers import TransformersLMScorer
@@ -25,6 +24,7 @@ class BERTLMScorer(TransformersLMScorer):
         self.model.eval()
         if "device" in options:
             self.model.to(options["device"])
+        self.batch_size = options["batchi_size"] if "batch_size" in options else 1
 
     def _generate_mask_sentences(self, tokens: List[str]) -> List[List[str]]:
         mask_sentences = [tokens.copy() for _ in range(len(tokens))]
@@ -62,27 +62,27 @@ class BERTLMScorer(TransformersLMScorer):
             dim=0,
         )
 
-        # For now, I pass all the mask sentences in one single batch
+        # Compute all prediction logits by batch
+        i = 0
+        all_pred_scores = []
         with torch.no_grad():
-            outputs = self.model(ids)
+            while i + self.batch_size < seq_len:
+                all_pred_scores.append(self.model(ids[i : i + self.batch_size])[0])
+                i += self.batch_size
+            if i < seq_len:
+                all_pred_scores.append(self.model(ids[i:])[0])
 
         # pred_scores.shape = [seq_len, seq_len + 2, vocab_size]
-        pred_scores = outputs[0]
+        pred_scores = torch.cat(all_pred_scores, dim=0)
 
-        # retrieve only logits corresponding to mask tokens :
-        mask_positions = range(
-            1, 1 + seq_len
-        )  # not take into account first and last special tokens
-        mask_pred_logits = pred_scores[
-            range(seq_len), mask_positions, :
-        ]  # shape (seq_len, vocab_size)
-        tokens_scores = mask_pred_logits[
-            range(seq_len), encoded_sentence
-        ]  # shape (seq_len, )
+        # retrieve only logits corresponding to mask tokens and do not take into account CLS and SEP special tokens.
+        # mask_pred_logits.shape = [seq_len, vocab_size]
+        mask_pred_logits = pred_scores[range(seq_len), range(1, 1 + seq_len), :]
 
-        log_probs = tokens_scores - mask_pred_logits.logsumexp(
-            dim=1
-        )  # shape (seq_len, )
+        # tokens_scores.shape = [seq_len, ]
+        tokens_scores = mask_pred_logits[range(seq_len), encoded_sentence]
+
+        log_probs = tokens_scores - mask_pred_logits.logsumexp(dim=1)
 
         return log_probs, torch.tensor(encoded_sentence), tokens  # type: ignore # pylint: disable=not-callable
 
