@@ -14,6 +14,7 @@ class BERTLMScorer(TransformersLMScorer):
 
     Roughly the idea is to mask successively each token in the sentences and compute the log prob of true token
     """
+
     # @overrides
     def _build(self, model_name: str, options: Dict[str, Any]) -> None:
         super()._build(model_name, options)
@@ -29,15 +30,18 @@ class BERTLMScorer(TransformersLMScorer):
         mask_sentences = [tokens.copy() for _ in range(len(tokens))]
         for i in range(len(tokens)):
             mask_sentences[i][i] = self.tokenizer.mask_token
-        return [[self.tokenizer.cls_token] + mask_sentence + [self.tokenizer.sep_token]
-                for mask_sentence in mask_sentences]
+        return [
+            [self.tokenizer.cls_token] + mask_sentence + [self.tokenizer.sep_token]
+            for mask_sentence in mask_sentences
+        ]
 
     # @overrides
     def _tokens_log_prob(
         self, text: str
     ) -> Tuple[torch.FloatTensor, torch.LongTensor, List[str]]:
+        if text == "":
+            return (torch.zeros((1,)), torch.zeros((1,)), [""])  # type: ignore # pylint: disable=not-callable
         device = self.model.device
-
         tokens = self.tokenizer.tokenize(text)
 
         # Store the full encoded sentences it to easily retrieve the token score in mask scores sentences
@@ -46,11 +50,17 @@ class BERTLMScorer(TransformersLMScorer):
         mask_tok_sentences = self._generate_mask_sentences(tokens)
 
         # ids.shape = [seq_len, seq_len + 2]
-        ids = torch.stack([torch.tensor(self.tokenizer.convert_tokens_to_ids(mask_tok_sentence),
-                                        device=device,
-                                        dtype=torch.long)
-                           for mask_tok_sentence in mask_tok_sentences],
-                          dim=0)
+        ids = torch.stack(
+            [
+                torch.tensor(  # pylint: disable=not-callable
+                    self.tokenizer.convert_tokens_to_ids(mask_tok_sentence),
+                    device=device,
+                    dtype=torch.long,
+                )
+                for mask_tok_sentence in mask_tok_sentences
+            ],
+            dim=0,
+        )
 
         # For now, I pass all the mask sentences in one single batch
         with torch.no_grad():
@@ -60,13 +70,21 @@ class BERTLMScorer(TransformersLMScorer):
         pred_scores = outputs[0]
 
         # retrieve only logits corresponding to mask tokens :
-        mask_positions = range(1, 1 + seq_len)  # not take into account first and last special tokens
-        mask_pred_logits = pred_scores[range(seq_len), mask_positions, :]  # shape (seq_len, vocab_size)
-        tokens_scores = mask_pred_logits[range(seq_len), encoded_sentence]  # shape (seq_len, )
+        mask_positions = range(
+            1, 1 + seq_len
+        )  # not take into account first and last special tokens
+        mask_pred_logits = pred_scores[
+            range(seq_len), mask_positions, :
+        ]  # shape (seq_len, vocab_size)
+        tokens_scores = mask_pred_logits[
+            range(seq_len), encoded_sentence
+        ]  # shape (seq_len, )
 
-        log_probs = tokens_scores - mask_pred_logits.logsumexp(dim=1)  # shape (seq_len, )
+        log_probs = tokens_scores - mask_pred_logits.logsumexp(
+            dim=1
+        )  # shape (seq_len, )
 
-        return log_probs, torch.tensor(encoded_sentence), tokens
+        return log_probs, torch.tensor(encoded_sentence), tokens  # type: ignore # pylint: disable=not-callable
 
     # @overrides
     @classmethod
