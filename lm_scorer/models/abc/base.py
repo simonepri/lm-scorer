@@ -10,10 +10,22 @@ class LMScorer(ABC):
     def __init__(self, model_name: str, **kwargs: Any) -> None:
         self._build(model_name, kwargs)
 
+    @overload
     def sentence_score(
-        self, sentences: Union[str, Iterable[str]], log: bool = False, reduce: str = "prod"
+        self, text: str, log: bool = False, reduce: str = "prod"
+    ) -> float:
+        ...
+
+    @overload
+    def sentence_score(
+        self, text: List[str], log: bool = False, reduce: str = "prod"
+    ) -> List[float]:
+        ...
+
+    def sentence_score(
+        self, text: Union[str, List[str]], log: bool = False, reduce: str = "prod",
     ) -> Union[float, List[float]]:
-        sentences = [sentences] if type(sentences) == str else sentences
+        sentences = [text] if isinstance(text, str) else text
         outputs = self._tokens_log_prob(sentences)
 
         scores = []
@@ -37,18 +49,37 @@ class LMScorer(ABC):
 
             scores.append(score.item())
 
-        return scores[0] if len(scores) == 1 else scores
+        return scores[0] if isinstance(text, str) else scores
 
+    @overload
     def tokens_score(
         self, text: str, log: bool = False
     ) -> Tuple[List[float], List[int], List[str]]:
-        log_probs, ids, tokens = self._tokens_log_prob(text)[0]
+        ...
 
-        scores = log_probs  # type: torch.Tensor # type: ignore
-        if not log:
-            scores = scores.exp()
+    @overload
+    def tokens_score(
+        self, text: List[str], log: bool = False
+    ) -> List[Tuple[List[float], List[int], List[str]]]:
+        ...
 
-        return scores.tolist(), ids.tolist(), tokens
+    def tokens_score(
+        self, text: Union[str, List[str]], log: bool = False
+    ) -> Union[
+        Tuple[List[float], List[int], List[str]],
+        List[Tuple[List[float], List[int], List[str]]],
+    ]:
+        sentences = [text] if isinstance(text, str) else text
+        outputs = [
+            (
+                log_probs.exp().tolist() if not log else log_probs.tolist(),
+                ids.tolist(),
+                tokens,
+            )
+            for log_probs, ids, tokens in self._tokens_log_prob(sentences)
+        ]
+
+        return outputs[0] if isinstance(text, str) else text
 
     @classmethod
     def supported_model_names(cls) -> Iterable[str]:
@@ -60,8 +91,8 @@ class LMScorer(ABC):
 
     @abstractmethod
     def _tokens_log_prob(
-        self, text: str
-    ) -> Tuple[torch.FloatTensor, torch.LongTensor, List[str]]:
+        self, sentences: List[str]
+    ) -> List[Tuple[torch.FloatTensor, torch.LongTensor, List[str]]]:
         ...  # pragma: no cover
 
     @classmethod
