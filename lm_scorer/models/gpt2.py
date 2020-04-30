@@ -91,14 +91,14 @@ class GPT2LMScorer(TransformersLMScorer):
     ) -> List[Tuple[torch.FloatTensor, torch.LongTensor, List[str]]]:
 
         output = []
-        for i in range(len(sentences) // self.batch_size):
-            output += self._tokens_log_prob_single_batch(
-                sentences[i * self.batch_size : (i + 1) * self.batch_size]
-            )
+        for i in range(0, len(sentences), self.batch_size):
+            batch = sentences[i : i + self.batch_size]
+            output += self._tokens_log_prob_single_batch(batch)
+
         if len(sentences) % self.batch_size != 0:
-            output += self._tokens_log_prob_single_batch(
-                sentences[-(len(sentences) % self.batch_size) :]
-            )
+            remaining_batch = sentences[-(len(sentences) % self.batch_size) :]
+            output += self._tokens_log_prob_single_batch(remaining_batch)
+
         return output
 
     # @overrides_tokens_log_prob_single_batch

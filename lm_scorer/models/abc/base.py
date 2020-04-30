@@ -71,9 +71,10 @@ class LMScorer(ABC):
     ]:
         sentences = [text] if isinstance(text, str) else text
         outputs = []
-        for scores, ids, tokens in self._tokens_log_prob(sentences):
+        for log_probs, ids, tokens in self._tokens_log_prob(sentences):
+            scores = log_probs  # type: torch.Tensor # type: ignore
             if not log:
-                scores = scores.exp()  # type: torch.Tensor # type: ignore
+                scores = scores.exp()
             outputs.append((scores.tolist(), ids.tolist(), tokens))
 
         return outputs[0] if isinstance(text, str) else outputs
