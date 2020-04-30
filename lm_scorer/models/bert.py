@@ -24,7 +24,7 @@ class BERTLMScorer(TransformersLMScorer):
         self.model.eval()
         if "device" in options:
             self.model.to(options["device"])
-        self.batch_size = options["batchi_size"] if "batch_size" in options else 1
+        self.batch_size = options["batch_size"] if "batch_size" in options else 1
 
     def _generate_mask_sentences(self, tokens: List[str]) -> List[List[str]]:
         mask_sentences = [tokens.copy() for _ in range(len(tokens))]
