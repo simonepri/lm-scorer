@@ -1,5 +1,6 @@
 # pylint: disable=missing-module-docstring,missing-function-docstring,unused-variable,too-many-locals,too-many-statements
 import pytest  # pylint: disable=unused-import
+import time
 
 from lm_scorer.models.bert import BERTLMScorer
 
@@ -27,6 +28,30 @@ def describe_init():
 def describe_supported_model_names():
     def should_not_be_empty():
         assert len(list(BERTLMScorer.supported_model_names())) > 0
+
+
+def describe_batch_size():
+    scorer = BERTLMScorer("bert-base-uncased", batch_size=1)
+    sentence = "I like to play tennis in summer."
+
+    def should_not_impact_sentence_score():
+        score_batch_1 = scorer.sentence_score(sentence)
+        scorer.batch_size = 4
+        score_batch_4 = scorer.sentence_score(sentence)
+        assert score_batch_1 == score_batch_4
+
+    def should_accelerate_inference():
+        scorer.batch_size = 1
+        begin_time_batch_1 = time.time()
+        scorer.sentence_score(sentence)
+        time_batch_1 = time.time() - begin_time_batch_1
+
+        scorer.batch_size = 4
+        begin_time_batch_4 = time.time()
+        scorer.sentence_score(sentence)
+        time_batch_4 = time.time() - begin_time_batch_4
+
+        assert time_batch_4 < time_batch_1
 
 
 def describe_sentence_score():
@@ -115,7 +140,7 @@ def describe_sentence_score_for_english():
             ),
             (
                 "I need to finish this project, but I do not have enough time.",
-                "I need to finish this project, and I do not have enough time.",
+                "I need to finish this project, or I do not have enough time.",
             ),
         ]
         assert_score_of_sentence_pairs(scorer, sentence_pairs)
@@ -226,7 +251,7 @@ def describe_sentence_score_for_english():
     def should_give_lower_score_to_sentences_with_verb_errors():
         # ERRANT - VERB error
         sentence_pairs = [
-            ("I can walk there.", "I can ambulate there.",),
+            ("I can walk there.", "I can believe there.",),
         ]
         assert_score_of_sentence_pairs(scorer, sentence_pairs)
 
