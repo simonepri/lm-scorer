@@ -70,16 +70,13 @@ class LMScorer(ABC):
         List[Tuple[List[float], List[int], List[str]]],
     ]:
         sentences = [text] if isinstance(text, str) else text
-        outputs = [
-            (
-                log_probs.exp().tolist() if not log else log_probs.tolist(),
-                ids.tolist(),
-                tokens,
-            )
-            for log_probs, ids, tokens in self._tokens_log_prob(sentences)
-        ]
+        outputs = []
+        for scores, ids, tokens in self._tokens_log_prob(sentences):
+            if not log:
+                scores = scores.exp()  # type: torch.Tensor # type: ignore
+            outputs.append((scores.tolist(), ids.tolist(), tokens))
 
-        return outputs[0] if isinstance(text, str) else text
+        return outputs[0] if isinstance(text, str) else outputs
 
     @classmethod
     def supported_model_names(cls) -> Iterable[str]:
