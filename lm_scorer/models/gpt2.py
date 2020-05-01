@@ -25,7 +25,6 @@ class GPT2LMScorer(TransformersLMScorer):
     def _tokens_log_prob_single_batch(
         self, text: List[str]
     ) -> List[Tuple[torch.FloatTensor, torch.LongTensor, List[str]]]:
-
         device = self.model.device
 
         input_text = [
@@ -75,7 +74,8 @@ class GPT2LMScorer(TransformersLMScorer):
             outputs.append(output)
 
         return outputs  # type: ignore
-
+    
+    # @overrides
     def _tokens_log_prob(
         self, sentences: List[str]
     ) -> List[Tuple[torch.FloatTensor, torch.LongTensor, List[str]]]:
@@ -91,7 +91,7 @@ class GPT2LMScorer(TransformersLMScorer):
 
         return output
 
-    # @overrides_tokens_log_prob_single_batch
+    # @overrides
     @classmethod
     def _supported_model_names(cls) -> Iterable[str]:
         return GPT2LMHeadModel.pretrained_model_archive_map.keys()

@@ -104,7 +104,7 @@ def describe_sentence_score():
         assert score <= 0.0
 
     def should_work_on_an_empty_list():
-        scorer.sentence_score([])
+        assert scorer.sentence_score([]) == []
 
     def should_give_same_results_independently_of_input_type():
         sentences = [
@@ -138,7 +138,7 @@ def describe_tokens_score():
         assert scores[0] <= 0.0
 
     def should_work_on_an_empty_list():
-        scorer.tokens_score([])
+        assert scorer.tokens_score([]) == []
 
 
 def describe_sentence_score_for_english():

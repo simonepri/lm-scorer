@@ -179,7 +179,7 @@ poetry run task lint
 # Run the static type checker
 poetry run task types
 # Run the tests
-poetry run task tests
+poetry run task test
 ```
 
 
