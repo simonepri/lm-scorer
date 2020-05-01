@@ -86,7 +86,7 @@ def describe_tokens_score():
         assert scores[0] <= 0.0
 
     def should_work_on_an_empty_list():
-        scorer.tokens_score([])
+        assert scorer.tokens_score([]) == []
 
 
 def describe_sentence_score_for_english():
