@@ -1,6 +1,6 @@
 # pylint: disable=missing-module-docstring,missing-function-docstring,unused-variable,too-many-locals,too-many-statements
 import pytest  # pylint: disable=unused-import
-
+from time import time
 from lm_scorer.models.gpt2 import GPT2LMScorer
 
 
@@ -28,6 +28,54 @@ def describe_supported_model_names():
     def should_not_be_empty():
         assert len(list(GPT2LMScorer.supported_model_names())) > 0
 
+def describe_batch_optimization():
+    scorer = GPT2LMScorer("gpt2")
+    sentences = [
+        "I have a big amount of money.",
+        "This is the best day of my life.",
+        "I think this game is easier than the one we played yesterday.",
+        "Let us finish this quickly!"
+    ]
+
+    def should_reduce_computational_time():
+        scorer.batch_size = 1
+        begin_time_no_batch = time()
+        scorer.sentence_score(sentences)
+        time_no_batch = time() - begin_time_no_batch
+
+        scorer.batch_size = 2
+        begin_time_batch_2 = time()
+        scorer.sentence_score(sentences)
+        time_with_batch_2 = time() - begin_time_batch_2
+
+        scorer.batch_size = 4
+        begin_time_batch_4 = time()
+        scorer.sentence_score(sentences)
+        time_with_batch_4 = time() - begin_time_batch_4
+        assert time_with_batch_4 <= time_with_batch_2 <= time_no_batch
+
+    def should_not_impact_sentence_scores():
+        scorer.batch_size = 1
+        score_no_batch = scorer.sentence_score(sentences, reduce="gmean")
+
+        scorer.batch_size = 2
+        score_with_batch_2 = scorer.sentence_score(sentences, reduce="gmean")
+
+        scorer.batch_size = 4
+        score_with_batch_4 = scorer.sentence_score(sentences, reduce="gmean")
+
+        for i in range(len(sentences)):
+            assert round(score_no_batch[i], 5) == \
+                   round(score_with_batch_2[i], 5) == \
+                   round(score_with_batch_4[i], 5)
+
+    def should_work_on_single_string():
+        scorer.batch_size = 2
+        scorer.sentence_score("I like cheese.")
+
+    def should_work_when_batch_size_is_bigger_than_nb_sentences():
+        scorer.batch_size = 9
+        scorer.sentence_score(sentences)
 
 def describe_sentence_score():
     scorer = GPT2LMScorer("gpt2")
