@@ -28,13 +28,14 @@ def describe_supported_model_names():
     def should_not_be_empty():
         assert len(list(GPT2LMScorer.supported_model_names())) > 0
 
+
 def describe_batch_optimization():
     scorer = GPT2LMScorer("gpt2")
     sentences = [
         "I have a big amount of money.",
         "This is the best day of my life.",
         "I think this game is easier than the one we played yesterday.",
-        "Let us finish this quickly!"
+        "Let us finish this quickly!",
     ]
 
     def should_reduce_computational_time():
@@ -65,9 +66,11 @@ def describe_batch_optimization():
         score_with_batch_4 = scorer.sentence_score(sentences, reduce="gmean")
 
         for i in range(len(sentences)):
-            assert round(score_no_batch[i], 5) == \
-                   round(score_with_batch_2[i], 5) == \
-                   round(score_with_batch_4[i], 5)
+            assert (
+                round(score_no_batch[i], 5)
+                == round(score_with_batch_2[i], 5)
+                == round(score_with_batch_4[i], 5)
+            )
 
     def should_work_on_single_string():
         scorer.batch_size = 2
@@ -76,6 +79,7 @@ def describe_batch_optimization():
     def should_work_when_batch_size_is_bigger_than_nb_sentences():
         scorer.batch_size = 9
         scorer.sentence_score(sentences)
+
 
 def describe_sentence_score():
     scorer = GPT2LMScorer("gpt2")
