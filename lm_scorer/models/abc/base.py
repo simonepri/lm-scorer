@@ -27,7 +27,7 @@ class LMScorer(ABC):
     ) -> Union[float, List[float]]:
         sentences = [text] if isinstance(text, str) else text
         if len(sentences) == 0:
-            raise ValueError("Try to score a empty list of sentences")
+            return []
 
         outputs = self._tokens_log_prob(sentences)
 
@@ -74,7 +74,7 @@ class LMScorer(ABC):
     ]:
         sentences = [text] if isinstance(text, str) else text
         if len(sentences) == 0:
-            raise ValueError("Try to score a empty list of sentences")
+            return []
         outputs = []
         for log_probs, ids, tokens in self._tokens_log_prob(sentences):
             scores = log_probs  # type: torch.Tensor # type: ignore
