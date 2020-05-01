@@ -19,7 +19,7 @@ class GPT2LMScorer(TransformersLMScorer):
             self.model.to(options["device"])
 
     # @overrides
-    def _tokens_log_prob(
+    def _tokens_log_prob_single_sentence(
         self, text: str
     ) -> Tuple[torch.FloatTensor, torch.LongTensor, List[str]]:
         device = self.model.device
@@ -56,6 +56,11 @@ class GPT2LMScorer(TransformersLMScorer):
         log_probs = ids_scores - pred_scores.logsumexp(2)
 
         return log_probs[0], ids[0], tokens  # type: ignore
+
+    def _tokens_log_prob(
+        self, text: List[str]
+    ) -> List[Tuple[torch.FloatTensor, torch.LongTensor, List[str]]]:
+        return list(map(self._tokens_log_prob_single_sentence, text))
 
     # @overrides
     @classmethod
