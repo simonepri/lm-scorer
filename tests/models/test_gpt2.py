@@ -51,6 +51,22 @@ def describe_sentence_score():
         score = scorer.sentence_score("", reduce="hmean", log=True)
         assert score <= 0.0
 
+    def should_throw_an_exception_for_empty_list():
+        with pytest.raises(ValueError):
+            scorer.sentence_score([])
+
+    def should_give_same_results_independently_of_input_type():
+        sentences = [
+            "I have a big amount of money.",
+            "This is the best day of my life.",
+            "I think this game is easier than the one we played yesterday.",
+        ]
+
+        sentences_scores = scorer.sentence_score(sentences)
+
+        for i, sentence in enumerate(sentences):
+            assert scorer.sentence_score(sentence) == sentences_scores[i]
+
     # TODO: Test the various reducing strategies by mocking the _tokens_log_prob call.
 
 
@@ -69,6 +85,10 @@ def describe_tokens_score():
         assert len(ids) == 1, ids
         assert len(tokens) == 1, tokens
         assert scores[0] <= 0.0
+
+    def should_throw_an_exception_for_empty_list():
+        with pytest.raises(ValueError):
+            scorer.sentence_score([])
 
 
 def describe_sentence_score_for_english():
