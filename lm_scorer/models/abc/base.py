@@ -94,7 +94,7 @@ class LMScorer(ABC):
 
     @abstractmethod
     def _tokens_log_prob(
-        self, sentences: List[str]
+        self, text: List[str]
     ) -> List[Tuple[torch.FloatTensor, torch.LongTensor, List[str]]]:
         ...  # pragma: no cover
 

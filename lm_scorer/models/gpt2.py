@@ -58,11 +58,9 @@ class GPT2LMScorer(TransformersLMScorer):
         return log_probs[0], ids[0], tokens  # type: ignore
 
     def _tokens_log_prob(
-        self, sentences: List[str]
+        self, text: List[str]
     ) -> List[Tuple[torch.FloatTensor, torch.LongTensor, List[str]]]:
-        return [
-            self._tokens_log_prob_single_sentence(sentence) for sentence in sentences
-        ]
+        return list(map(self._tokens_log_prob_single_sentence, text))
 
     # @overrides
     @classmethod
