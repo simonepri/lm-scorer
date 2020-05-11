@@ -1,7 +1,7 @@
 from typing import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 import torch
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from transformers import AutoTokenizer, GPT2LMHeadModel
 
 from .abc.transformers import TransformersLMScorer
 
@@ -12,7 +12,9 @@ class GPT2LMScorer(TransformersLMScorer):
         super()._build(model_name, options)
 
         # pylint: disable=attribute-defined-outside-init
-        self.tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            model_name, use_fast=True, add_special_tokens=False
+        )
         self.model = GPT2LMHeadModel.from_pretrained(model_name)
         self.model.eval()
         if "device" in options:
