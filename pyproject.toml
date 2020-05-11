@@ -39,6 +39,8 @@ pytest-cov = "^2.8.1"
 pytest-mock = "^3.0.0"
 pytest-sugar = "~0.9.3"
 pytest-describe = "^1.0.0"
+scipy = "^1.4.1"
+torch = "^1.4.0"
 
 [build-system]
 requires = ["poetry >=1,<2"]
