@@ -87,9 +87,9 @@ class LMScorer(ABC):
     def supported_model_names(cls) -> Iterable[str]:
         return cls._supported_model_names()
 
-    @abstractmethod
     def _build(self, model_name: str, options: Dict[str, Any]) -> None:
-        ...  # pragma: no cover
+        # pylint: disable=attribute-defined-outside-init, unused-argument
+        self.model_name = model_name
 
     @abstractmethod
     def _tokens_log_prob(
