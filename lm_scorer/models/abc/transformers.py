@@ -3,10 +3,10 @@ from typing import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 import os
 
-from .base import LMScorer
+from .batch import BatchedLMScorer
 
 
-class TransformersLMScorer(LMScorer):
+class TransformersLMScorer(BatchedLMScorer):
     # @overrides
     def _build(self, model_name: str, options: Dict[str, Any]) -> None:
         super()._build(model_name, options)
