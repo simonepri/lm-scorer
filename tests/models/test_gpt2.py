@@ -60,18 +60,21 @@ def describe_tokens_score():
 
     def should_match_hard_coded_result():
         sentence = "Hello World!"
+        eps = 1e-5
         expected = (
             [
-                -8.293975830078125,
-                -5.755699157714844,
-                -1.4748573303222656,
-                -6.430915832519531,
+                -8.293977140323449,
+                -5.755700968654786,
+                -1.474859642902672,
+                -6.430916815662243,
             ],
             [15496, 2159, 0, 50256],
             ["Hello", "ĠWorld", "!", "<|endoftext|>"],
         )
         info = scorer.tokens_score(sentence, log=True)
-        assert all(math.isclose(s1, s2) for s1, s2 in zip(info[0], expected[0])), (
+        assert all(
+            math.isclose(s1, s2, rel_tol=eps) for s1, s2 in zip(info[0], expected[0])
+        ), (
             info[0],
             expected[0],
         )

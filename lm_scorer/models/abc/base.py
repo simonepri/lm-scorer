@@ -77,7 +77,7 @@ class LMScorer(ABC):
 
         for log_probs, ids, tokens in self._tokens_log_prob(sentences):
             scores = log_probs if log else log_probs.exp()
-            scores = cast(torch.FloatTensor, scores)
+            scores = cast(torch.DoubleTensor, scores)
             output = (scores.tolist(), ids.tolist(), tokens)
             outputs.append(output)
 
@@ -94,7 +94,7 @@ class LMScorer(ABC):
     @abstractmethod
     def _tokens_log_prob(
         self, text: List[str]
-    ) -> List[Tuple[torch.FloatTensor, torch.LongTensor, List[str]]]:
+    ) -> List[Tuple[torch.DoubleTensor, torch.LongTensor, List[str]]]:
         ...  # pragma: no cover
 
     @classmethod
