@@ -40,7 +40,7 @@ def describe_tokens_log_prob_for_batch():
 
     def should_work_on_a_single_sentence():
         sentences = ["Hello World!"]
-        eps = 1e-5
+        eps = 1e-4
         expected = [
             (
                 [
@@ -67,7 +67,7 @@ def describe_tokens_log_prob_for_batch():
 
     def should_work_on_multiple_sentences():
         sentences = ["This is an example.", "The sky is blue today."]
-        eps = 1e-5
+        eps = 1e-4
         expected = [
             (
                 [
