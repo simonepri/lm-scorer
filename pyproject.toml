@@ -26,19 +26,21 @@ test = "python -m pytest --cov=lm_scorer tests --verbose"
 [tool.poetry.dependencies]
 python = ">=3.6,<3.8"
 pip = ">=20.0.0"
-transformers = "^2.7.0"
+transformers = "^2.9.0"
 torch = "^1.4.0"
 
 [tool.poetry.dev-dependencies]
-taskipy = "^1.2.0"
+taskipy = "^1.2.1"
 black = "~19.10b0"
-pylint = "^2.4.4"
+pylint = "^2.5.2"
 mypy = "~0.770"
-pytest = "^5.4.1"
+pytest = "^5.4.2"
 pytest-cov = "^2.8.1"
 pytest-mock = "^3.0.0"
 pytest-sugar = "~0.9.3"
 pytest-describe = "^1.0.0"
+scipy = "^1.4.1"
+torch = "^1.4.0"
 
 [build-system]
 requires = ["poetry >=1,<2"]

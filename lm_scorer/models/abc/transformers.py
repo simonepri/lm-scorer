@@ -1,15 +1,13 @@
 # pylint: disable=abstract-method
 from typing import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from abc import abstractmethod
 
 import os
 
-from .base import LMScorer
+from .batch import BatchedLMScorer
 
 
-class TransformersLMScorer(LMScorer):
+class TransformersLMScorer(BatchedLMScorer):
     # @overrides
-    @abstractmethod
     def _build(self, model_name: str, options: Dict[str, Any]) -> None:
         super()._build(model_name, options)
 
