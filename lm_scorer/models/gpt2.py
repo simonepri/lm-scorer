@@ -26,7 +26,7 @@ class GPT2LMScorer(TransformersLMScorer):
     # @overrides
     def _tokens_log_prob_for_batch(
         self, text: List[str]
-    ) -> List[Tuple[torch.FloatTensor, torch.LongTensor, List[str]]]:
+    ) -> List[Tuple[torch.DoubleTensor, torch.LongTensor, List[str]]]:
         device = self.model.device
 
         outputs = []
@@ -46,7 +46,7 @@ class GPT2LMScorer(TransformersLMScorer):
                 model_outputs: Tuple[torch.Tensor] = self.model(ids)
 
             # pred_scores.shape = [1, seq_len + 2, vocab_size]
-            pred_scores = model_outputs[0]
+            pred_scores = model_outputs[0].double()
 
             # len(tokens) = seq_len + 1
             tokens = tokens[1:]
@@ -63,7 +63,7 @@ class GPT2LMScorer(TransformersLMScorer):
             log_probs = log_probs.squeeze(0)
             ids = ids.squeeze(0)
 
-            log_probs = cast(torch.FloatTensor, log_probs)
+            log_probs = cast(torch.DoubleTensor, log_probs)
             ids = cast(torch.LongTensor, ids)
 
             output = (log_probs, ids, tokens)

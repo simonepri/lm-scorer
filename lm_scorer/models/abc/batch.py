@@ -21,7 +21,7 @@ class BatchedLMScorer(LMScorer):
     # @overrides
     def _tokens_log_prob(
         self, text: List[str]
-    ) -> List[Tuple[torch.FloatTensor, torch.LongTensor, List[str]]]:
+    ) -> List[Tuple[torch.DoubleTensor, torch.LongTensor, List[str]]]:
         outputs = []
         for i in range(0, len(text), self.batch_size):
             batch = text[i : i + self.batch_size]
@@ -31,5 +31,5 @@ class BatchedLMScorer(LMScorer):
     @abstractmethod
     def _tokens_log_prob_for_batch(
         self, text: List[str]
-    ) -> List[Tuple[torch.FloatTensor, torch.LongTensor, List[str]]]:
+    ) -> List[Tuple[torch.DoubleTensor, torch.LongTensor, List[str]]]:
         ...  # pragma: no cover
