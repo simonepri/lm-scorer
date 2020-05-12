@@ -60,7 +60,9 @@ class GPT2LMScorer(TransformersLMScorer):
         for sent_index in range(len(text)):
             sent_nopad_mask = nopad_mask[sent_index]
             # len(tokens) = len(text[sent_index]) + 1
-            sent_tokens = encoding.tokens(sent_index)[1:]
+            first_pad_index = int(torch.sum(sent_nopad_mask).item())
+            sent_tokens = encoding.tokens(sent_index)[1:first_pad_index]
+
             # sent_ids.shape = [len(text[sent_index]) + 1]
             sent_ids = ids[sent_index, sent_nopad_mask][1:]
             # logits.shape = [len(text[sent_index]) + 1, vocab_size]
