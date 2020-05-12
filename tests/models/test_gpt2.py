@@ -1,4 +1,5 @@
 # pylint: disable=missing-module-docstring,missing-function-docstring,unused-variable,too-many-locals,too-many-statements
+import math
 import pytest  # pylint: disable=unused-import
 from time import time
 from lm_scorer.models.gpt2 import GPT2LMScorer
@@ -85,60 +86,109 @@ def describe_sentence_score():
     scorer = GPT2LMScorer("gpt2")
 
     def should_work_on_an_empty_sentence():
-        score = scorer.sentence_score("", log=False)
-        assert 0.0 <= score <= 1.0
-        score = scorer.sentence_score("", reduce="mean", log=False)
-        assert 0.0 <= score <= 1.0
-        score = scorer.sentence_score("", reduce="gmean", log=False)
-        assert 0.0 <= score <= 1.0
-        score = scorer.sentence_score("", reduce="hmean", log=False)
+        sentence = ""
+        score = scorer.sentence_score(sentence)
         assert 0.0 <= score <= 1.0
 
-        score = scorer.sentence_score("", log=True)
-        assert score <= 0.0
-        score = scorer.sentence_score("", reduce="mean", log=True)
-        assert score <= 0.0
-        score = scorer.sentence_score("", reduce="gmean", log=True)
-        assert score <= 0.0
-        score = scorer.sentence_score("", reduce="hmean", log=True)
-        assert score <= 0.0
+    def should_work_on_a_single_sentence():
+        sentence = "This is an example sentence."
+        score = scorer.sentence_score(sentence)
+        assert 0.0 <= score <= 1.0
 
-    def should_work_on_an_empty_list():
-        assert scorer.sentence_score([]) == []
-
-    def should_give_same_results_independently_of_input_type():
+    def should_work_on_a_list_of_sentences():
         sentences = [
-            "I have a big amount of money.",
-            "This is the best day of my life.",
-            "I think this game is easier than the one we played yesterday.",
+            "This is an example sentence.",
+            "This is an another example sentence.",
+            "This is yet another example sentence.",
         ]
-
-        sentences_scores = scorer.sentence_score(sentences)
-
-        for i, sentence in enumerate(sentences):
-            assert scorer.sentence_score(sentence) == sentences_scores[i]
-
-    # TODO: Test the various reducing strategies by mocking the _tokens_log_prob call.
+        scores = scorer.sentence_score(sentences)
+        for sentence, score in zip(sentences, scores):
+            new_score = scorer.sentence_score(sentence)
+            assert score == new_score, sentence
 
 
 def describe_tokens_score():
     scorer = GPT2LMScorer("gpt2")
 
-    def should_work_on_an_empty_sentence():
-        scores, ids, tokens = scorer.tokens_score("", log=False)
-        assert len(scores) == 1, scores
-        assert len(ids) == 1, ids
-        assert len(tokens) == 1, tokens
-        assert 0.0 <= scores[0] <= 1.0
+    def should_match_hard_coded_result():
+        sentence = "Hello World!"
+        expected = (
+            [
+                -8.293975830078125,
+                -5.755699157714844,
+                -1.4748573303222656,
+                -6.430915832519531,
+            ],
+            [15496, 2159, 0, 50256],
+            ["Hello", "ĠWorld", "!", "<|endoftext|>"],
+        )
+        info = scorer.tokens_score(sentence, log=True)
+        assert all(math.isclose(s1, s2) for s1, s2 in zip(info[0], expected[0])), (
+            info[0],
+            expected[0],
+        )
+        assert info[1] == expected[1]
+        assert info[2] == expected[2]
 
-        scores, ids, tokens = scorer.tokens_score("", log=True)
+    def should_work_on_an_empty_sentence():
+        sentence = ""
+        scores, ids, tokens = scorer.tokens_score(sentence)
         assert len(scores) == 1, scores
         assert len(ids) == 1, ids
         assert len(tokens) == 1, tokens
-        assert scores[0] <= 0.0
+        assert all(0.0 <= score <= 1.0 for score in scores)
 
     def should_work_on_an_empty_list():
         assert scorer.tokens_score([]) == []
+
+    def should_work_on_a_single_sentence():
+        sentence = "This is an example sentence."
+        scores, ids, tokens = scorer.tokens_score(sentence)
+        assert len(scores) == 7, scores
+        assert len(ids) == 7, ids
+        assert len(tokens) == 7, tokens
+        assert all(0.0 <= score <= 1.0 for score in scores)
+
+    def should_work_on_a_list_of_sentences():
+        sentences = [
+            "This is an example sentence.",
+            "This is an another example sentence.",
+            "This is yet another example sentence.",
+        ]
+        info = scorer.tokens_score(sentences)
+        for sentence, (scores, ids, tokens) in zip(sentences, info):
+            new_scores, new_ids, new_tokens = scorer.tokens_score(sentence)
+            assert scores == new_scores, sentence
+            assert ids == new_ids, sentence
+            assert tokens == new_tokens, sentence
+
+
+def describe_batch_size_option():
+    scorer = GPT2LMScorer("gpt2", batch_size=2)
+
+    def should_work_for_sentence_score():
+        sentences = [
+            "This is an example sentence.",
+            "This is an another example sentence.",
+            "This is yet another example sentence.",
+        ]
+        scores = scorer.sentence_score(sentences)
+        for sentence, score in zip(sentences, scores):
+            new_score = scorer.sentence_score(sentence)
+            assert score == new_score, sentence
+
+    def should_work_for_tokens_score():
+        sentences = [
+            "This is an example sentence.",
+            "This is an another example sentence.",
+            "This is yet another example sentence.",
+        ]
+        info = scorer.tokens_score(sentences)
+        for sentence, (scores, ids, tokens) in zip(sentences, info):
+            new_scores, new_ids, new_tokens = scorer.tokens_score(sentence)
+            assert scores == new_scores, sentence
+            assert ids == new_ids, sentence
+            assert tokens == new_tokens, sentence
 
 
 def describe_sentence_score_for_english():

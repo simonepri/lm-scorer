@@ -2,8 +2,13 @@ from typing import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 import torch
+<<<<<<< HEAD
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from torch.nn.utils.rnn import pad_sequence
+=======
+from transformers import AutoTokenizer, AutoConfig, GPT2LMHeadModel
+from transformers.tokenization_utils import BatchEncoding
+>>>>>>> gpt2_batching_new_API
 
 from .abc.transformers import TransformersLMScorer
 
@@ -14,12 +19,28 @@ class GPT2LMScorer(TransformersLMScorer):
         super()._build(model_name, options)
 
         # pylint: disable=attribute-defined-outside-init
-        self.tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            model_name, use_fast=True, add_special_tokens=False
+        )
+        # Add the pad token to GPT2 dictionary.
+        self.tokenizer.add_special_tokens({"additional_special_tokens": ["<|pad|>"]})
+        self.tokenizer.pad_token = "<|pad|>"
+
+        # Index to easily access all logits value except the one corresponding to pad_token_id
+        self.nopad_vocab_idx = [
+            *range(self.tokenizer.pad_token_id),
+            *range(self.tokenizer.pad_token_id + 1, len(self.tokenizer)),
+        ]
+
+        config = AutoConfig.from_pretrained(model_name)
         self.model = GPT2LMHeadModel.from_pretrained(model_name)
+        # We need to resize the embedding layer because we added the pad token.
+        self.model.resize_token_embeddings(len(self.tokenizer))
         self.model.eval()
         if "device" in options:
             self.model.to(options["device"])
 
+<<<<<<< HEAD
         self.batch_size = options["batch_size"] if "batch_size" in options else 1
 
     def _tokens_log_prob_single_batch(
@@ -46,10 +67,30 @@ class GPT2LMScorer(TransformersLMScorer):
         ids = pad_sequence(
             tokens_ids_list, batch_first=True, padding_value=self.tokenizer.eos_token_id
         )
+=======
+    def _add_special_tokens(self, text: str) -> str:
+        return self.tokenizer.bos_token + text + self.tokenizer.eos_token
 
+    # @overrides
+    def _tokens_log_prob_for_batch(
+        self, text: List[str]
+    ) -> List[Tuple[torch.FloatTensor, torch.LongTensor, List[str]]]:
+        outputs: List[Tuple[torch.FloatTensor, torch.LongTensor, List[str]]] = []
+        if len(text) == 0:
+            return outputs
+>>>>>>> gpt2_batching_new_API
+
+        # TODO: Handle overflowing elements for long sentences
+        text = list(map(self._add_special_tokens, text))
+        encoding: BatchEncoding = self.tokenizer.batch_encode_plus(
+            text, return_tensors="pt",
+        )
         with torch.no_grad():
-            outputs = self.model(ids)
+            ids = encoding["input_ids"].to(self.model.device)
+            nopad_mask = ids != self.tokenizer.pad_token_id
+            logits: torch.Tensor = self.model(ids)[0]
 
+<<<<<<< HEAD
         # pred_scores.shape = [nb_sentences, max_seq_len, vocab_size]
         pred_scores = outputs[0]
 
@@ -90,6 +131,29 @@ class GPT2LMScorer(TransformersLMScorer):
             output += self._tokens_log_prob_single_batch(remaining_batch)
 
         return output
+=======
+        for sent_index in range(len(text)):
+            sent_nopad_mask = nopad_mask[sent_index]
+            # len(tokens) = len(text[sent_index]) + 1
+            sent_tokens = encoding.tokens(sent_index)[1:]
+            # sent_ids.shape = [len(text[sent_index]) + 1]
+            sent_ids = ids[sent_index, sent_nopad_mask][1:]
+            # logits.shape = [len(text[sent_index]) + 1, vocab_size]
+            sent_logits = logits[sent_index, sent_nopad_mask][:-1, self.nopad_vocab_idx]
+            # ids_scores.shape = [seq_len + 1]
+            sent_ids_scores = sent_logits.gather(1, sent_ids.unsqueeze(1)).squeeze(1)
+            x = -sent_logits.logsumexp(1)
+            # log_prob.shape = [seq_len + 1]
+            sent_log_probs = sent_ids_scores - sent_logits.logsumexp(1)
+
+            sent_log_probs = cast(torch.FloatTensor, sent_log_probs)
+            sent_ids = cast(torch.LongTensor, sent_ids)
+
+            output = (sent_log_probs, sent_ids, sent_tokens)
+            outputs.append(output)
+
+        return outputs
+>>>>>>> gpt2_batching_new_API
 
     # @overrides
     @classmethod

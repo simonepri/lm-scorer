@@ -26,12 +26,11 @@ class LMScorer(ABC):
         self, text: Union[str, List[str]], log: bool = False, reduce: str = "prod",
     ) -> Union[float, List[float]]:
         sentences = [text] if isinstance(text, str) else text
+        scores: List[float] = []
         if len(sentences) == 0:
-            return []
+            return scores
 
         outputs = self._tokens_log_prob(sentences)
-
-        scores = []
         for output in outputs:
             log_probs = output[0]
             tlen = log_probs.shape[0]
@@ -46,7 +45,6 @@ class LMScorer(ABC):
                 score = log_probs.neg().logsumexp(0).neg() + math.log(tlen)
             else:
                 raise ValueError("Unrecognized scoring strategy: %s" % reduce)
-
             if not log:
                 score = score.exp()
 
@@ -73,14 +71,15 @@ class LMScorer(ABC):
         List[Tuple[List[float], List[int], List[str]]],
     ]:
         sentences = [text] if isinstance(text, str) else text
+        outputs: List[Tuple[List[float], List[int], List[str]]] = []
         if len(sentences) == 0:
-            return []
-        outputs = []
+            return outputs
+
         for log_probs, ids, tokens in self._tokens_log_prob(sentences):
-            scores = log_probs  # type: torch.Tensor # type: ignore
-            if not log:
-                scores = scores.exp()
-            outputs.append((scores.tolist(), ids.tolist(), tokens))
+            scores = log_probs if log else log_probs.exp()
+            scores = cast(torch.FloatTensor, scores)
+            output = (scores.tolist(), ids.tolist(), tokens)
+            outputs.append(output)
 
         return outputs[0] if isinstance(text, str) else outputs
 
@@ -88,9 +87,9 @@ class LMScorer(ABC):
     def supported_model_names(cls) -> Iterable[str]:
         return cls._supported_model_names()
 
-    @abstractmethod
     def _build(self, model_name: str, options: Dict[str, Any]) -> None:
-        ...  # pragma: no cover
+        # pylint: disable=attribute-defined-outside-init, unused-argument
+        self.model_name = model_name
 
     @abstractmethod
     def _tokens_log_prob(
