@@ -2,7 +2,7 @@ from typing import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 import torch
-from transformers import AutoTokenizer, AutoConfig, GPT2LMHeadModel
+from transformers import AutoTokenizer, GPT2LMHeadModel
 from transformers.tokenization_utils import BatchEncoding
 
 from .abc.transformers import TransformersLMScorer
@@ -22,13 +22,6 @@ class GPT2LMScorer(TransformersLMScorer):
         self.tokenizer.add_special_tokens({"additional_special_tokens": ["<|pad|>"]})
         self.tokenizer.pad_token = "<|pad|>"
 
-        # Index to easily access all logits value except the one corresponding to pad_token_id
-        self.nopad_vocab_idx = [
-            *range(self.tokenizer.pad_token_id),
-            *range(self.tokenizer.pad_token_id + 1, len(self.tokenizer)),
-        ]
-
-        config = AutoConfig.from_pretrained(model_name)
         self.model = GPT2LMHeadModel.from_pretrained(model_name)
         # We need to resize the embedding layer because we added the pad token.
         self.model.resize_token_embeddings(len(self.tokenizer))
@@ -60,13 +53,17 @@ class GPT2LMScorer(TransformersLMScorer):
         for sent_index in range(len(text)):
             sent_nopad_mask = nopad_mask[sent_index]
             # len(tokens) = len(text[sent_index]) + 1
-            first_pad_index = int(torch.sum(sent_nopad_mask).item())
-            sent_tokens = encoding.tokens(sent_index)[1:first_pad_index]
+            sent_tokens = [
+                tok
+                for i, tok in enumerate(encoding.tokens(sent_index))
+                if sent_nopad_mask[i] and i != 0
+            ]
 
             # sent_ids.shape = [len(text[sent_index]) + 1]
             sent_ids = ids[sent_index, sent_nopad_mask][1:]
             # logits.shape = [len(text[sent_index]) + 1, vocab_size]
-            sent_logits = logits[sent_index, sent_nopad_mask][:-1, self.nopad_vocab_idx]
+            sent_logits = logits[sent_index, sent_nopad_mask][:-1, :]
+            sent_logits[:, self.tokenizer.pad_token_id] = float("-inf")
             # ids_scores.shape = [seq_len + 1]
             sent_ids_scores = sent_logits.gather(1, sent_ids.unsqueeze(1)).squeeze(1)
             # log_prob.shape = [seq_len + 1]
