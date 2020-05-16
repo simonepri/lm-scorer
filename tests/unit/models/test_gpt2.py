@@ -106,3 +106,16 @@ def describe_tokens_log_prob_for_batch():
                 assert math.isclose(score, exp_score, rel_tol=eps), {"index": (i, j)}
             assert ids == exp_ids
             assert tokens == exp_tokens
+
+    @pytest.mark.xfail
+    def should_work_with_a_sentence_longer_than_the_model_max_size():
+        max_input_size = scorer.tokenizer.max_len
+        long_sentence = "Very" + " long" * max_input_size
+        exp_ids = [16371] + [809] * max_input_size + [50256]
+        exp_tokens = ["Very"] + ["Ġlong"] * max_input_size + ["<|endoftext|>"]
+
+        _, ids, tokens = scorer._tokens_log_prob_for_batch([long_sentence])[0]
+        ids = ids.tolist()
+
+        assert ids == exp_ids
+        assert tokens == exp_tokens
