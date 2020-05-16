@@ -51,6 +51,13 @@ def parse_args() -> argparse.Namespace:
         " Available strategies are: prod, mean, gmean, hmean.",
     )
     parser.add_argument(
+        "--batch-size",
+        "-b",
+        type=int,
+        default=1,
+        help="Number of sentences to process in parallel.",
+    )
+    parser.add_argument(
         "--cuda",
         type=int,
         default=-1,
@@ -81,6 +88,9 @@ def validate_args(args: argparse.Namespace) -> None:
         device_count = torch.cuda.device_count()
         raise ValueError("Invalid Cuda device: %d/%d." % (args.cuda, device_count))
 
+    if args.batch_size <= 0:
+        raise ValueError("The batch size must be positive.")
+
 
 def main(args: argparse.Namespace) -> None:
     if args.sentences_file_path == "-":
@@ -88,21 +98,35 @@ def main(args: argparse.Namespace) -> None:
     else:
         sentences_stream = open(args.sentences_file_path, "r")
 
+    batch_size = args.batch_size
     device = torch.device("cuda:%d" % args.cuda if args.cuda >= 0 else "cpu")
-    scorer = LMScorer.from_pretrained(args.model_name, device=device)
+    scorer = LMScorer.from_pretrained(
+        args.model_name, device=device, batch_size=batch_size
+    )
 
-    for sentence in sentences_stream:
-        sentence = sentence.strip()
-        sent_score = scorer.sentence_score(
-            sentence, log=args.log_prob, reduce=args.reduce
+    buffer_size = args.batch_size * 2
+    sentences = []
+
+    sentences = sentences_stream.readlines(buffer_size)
+    while sentences:
+        sentences = [sentence.strip() for sentence in sentences]
+
+        sent_scores = scorer.sentence_score(
+            sentences, log=args.log_prob, reduce=args.reduce
         )
-        print("%s\t%.5g" % (sentence, sent_score))
-
         if args.tokens:
-            scores, _, tokens = scorer.tokens_score(sentence, log=args.log_prob)
-            for score, token in zip(scores, tokens):
-                print("%s\t%.5g" % (token, score))
-            print("")
+            sent_info = scorer.tokens_score(sentences, log=args.log_prob)
+
+        for i in range(len(sentences)):
+            sentence, sent_score = sentences[i], sent_scores[i]
+            print(f"%s\t%.5g" % (sentence, sent_score))
+            if args.tokens:
+                scores, _, tokens = sent_info[i]
+                for score, token in zip(scores, tokens):
+                    print(f"%s\t%.5g" % (token, score))
+                print("")
+
+        sentences = sentences_stream.readlines(buffer_size)
 
     if args.sentences_file_path != "-":
         sentences_stream.close()
