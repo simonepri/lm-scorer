@@ -58,6 +58,13 @@ def parse_args() -> argparse.Namespace:
         help="Number of sentences to process in parallel.",
     )
     parser.add_argument(
+        "--significant-figures",
+        "-sf",
+        type=int,
+        default=5,
+        help="Number of significant figures to use when printing numbers.",
+    )
+    parser.add_argument(
         "--cuda",
         type=int,
         default=-1,
@@ -91,6 +98,9 @@ def validate_args(args: argparse.Namespace) -> None:
     if args.batch_size <= 0:
         raise ValueError("The batch size must be positive.")
 
+    if args.significant_figures <= 0:
+        raise ValueError("The number of significant figures must be positive.")
+
 
 def main(args: argparse.Namespace) -> None:
     if args.sentences_file_path == "-":
@@ -98,6 +108,7 @@ def main(args: argparse.Namespace) -> None:
     else:
         sentences_stream = open(args.sentences_file_path, "r")
 
+    sig_fig = args.significant_figures
     batch_size = args.batch_size
     device = torch.device("cuda:%d" % args.cuda if args.cuda >= 0 else "cpu")
     scorer = LMScorer.from_pretrained(
@@ -119,11 +130,11 @@ def main(args: argparse.Namespace) -> None:
 
         for i in range(len(sentences)):
             sentence, sent_score = sentences[i], sent_scores[i]
-            print(f"%s\t%.5g" % (sentence, sent_score))
+            print(f"%s\t%.{sig_fig}g" % (sentence, sent_score))
             if args.tokens:
                 scores, _, tokens = sent_info[i]
                 for score, token in zip(scores, tokens):
-                    print(f"%s\t%.5g" % (token, score))
+                    print(f"%s\t%.{sig_fig}g" % (token, score))
                 print("")
 
         sentences = sentences_stream.readlines(buffer_size)
