@@ -47,8 +47,9 @@ class GPT2LMScorer(TransformersLMScorer):
         )
         with torch.no_grad():
             ids = encoding["input_ids"].to(self.model.device)
+            attention_mask = encoding["attention_mask"].to(self.model.device)
             nopad_mask = ids != self.tokenizer.pad_token_id
-            logits: torch.Tensor = self.model(ids)[0]
+            logits: torch.Tensor = self.model(ids, attention_mask=attention_mask)[0]
 
         for sent_index in range(len(text)):
             sent_nopad_mask = nopad_mask[sent_index]
