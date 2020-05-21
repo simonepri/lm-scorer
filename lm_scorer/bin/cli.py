@@ -3,6 +3,7 @@
 from typing import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 import argparse
+import itertools
 import os
 import sys
 
@@ -102,7 +103,20 @@ def validate_args(args: argparse.Namespace) -> None:
         raise ValueError("The number of significant figures must be positive.")
 
 
+T1 = TypeVar("T1")  # pylint: disable=invalid-name
+
+
+def grouper(iterable: Iterable[T1], size: int) -> Generator[List[T1], None, None]:
+    it = iter(iterable)  # pylint: disable=invalid-name
+    while True:
+        chunk = list(itertools.islice(it, size))
+        if not chunk:
+            return
+        yield chunk
+
+
 def main(args: argparse.Namespace) -> None:
+    # pylint: disable=too-many-locals
     if args.sentences_file_path == "-":
         sentences_stream = sys.stdin
     else:
@@ -116,10 +130,7 @@ def main(args: argparse.Namespace) -> None:
     )
 
     buffer_size = args.batch_size * 2
-    sentences = []
-
-    sentences = sentences_stream.readlines(buffer_size)
-    while sentences:
+    for sentences in grouper(sentences_stream, buffer_size):
         sentences = [sentence.strip() for sentence in sentences]
 
         sent_scores = scorer.sentence_score(
@@ -128,7 +139,8 @@ def main(args: argparse.Namespace) -> None:
         if args.tokens:
             sent_info = scorer.tokens_score(sentences, log=args.log_prob)
 
-        for i in range(len(sentences)):
+        sent_num = len(sentences)
+        for i in range(sent_num):
             sentence, sent_score = sentences[i], sent_scores[i]
             print(f"%s\t%.{sig_fig}g" % (sentence, sent_score))
             if args.tokens:
@@ -136,8 +148,6 @@ def main(args: argparse.Namespace) -> None:
                 for score, token in zip(scores, tokens):
                     print(f"%s\t%.{sig_fig}g" % (token, score))
                 print("")
-
-        sentences = sentences_stream.readlines(buffer_size)
 
     if args.sentences_file_path != "-":
         sentences_stream.close()
