@@ -99,27 +99,27 @@ scorer.tokens_score("I like this package.")
 
 # Compute sentence score as the product of tokens' probabilities
 scorer.sentence_score("I like this package.", reduce="prod")
-# => 6.023125141002561e-12
+# => 6.0231e-12
 
 # Compute sentence score as the mean of tokens' probabilities
 scorer.sentence_score("I like this package.", reduce="mean")
-# => 0.06459333747625351
+# => 0.064593
 
 # Compute sentence score as the geometric mean of tokens' probabilities
 scorer.sentence_score("I like this package.", reduce="gmean")
-# => 0.013488706201314926
+# => 0.013489
 
 # Compute sentence score as the harmonic mean of tokens' probabilities
 scorer.sentence_score("I like this package.", reduce="hmean")
-# => 0.0028008418157696724
+# => 0.0028008
 
 # Get the log of the sentence score.
 scorer.sentence_score("I like this package.", log=True)
-# => -25.83541488647461
+# => -25.835
 
 # Score multiple sentences.
 scorer.sentence_score(["Sentence 1", "Sentence 2"])
-# => [1.1507933495025213e-11, 5.664487108536509e-12]
+# => [1.1508e-11, 5.6645e-12]
 
 # NB: Computations are done in log space so they should be numerically stable.
 ```
