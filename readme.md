@@ -87,7 +87,8 @@ list(LMScorer.supported_model_names())
 
 # Load model to cpu or cuda
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
-scorer = LMScorer.from_pretrained("gpt2", device=device)
+batch_size = 1
+scorer = LMScorer.from_pretrained("gpt2", device=device, batch_size=batch_size)
 
 # Return token probabilities (provide log=True to return log probabilities)
 scorer.tokens_score("I like this package.")
@@ -112,6 +113,14 @@ scorer.sentence_score("I like this package.", reduce="gmean")
 scorer.sentence_score("I like this package.", reduce="hmean")
 # => 0.0028008
 
+# Get the log of the sentence score.
+scorer.sentence_score("I like this package.", log=True)
+# => -25.835
+
+# Score multiple sentences.
+scorer.sentence_score(["Sentence 1", "Sentence 2"])
+# => [1.1508e-11, 5.6645e-12]
+
 # NB: Computations are done in log space so they should be numerically stable.
 ```
 
@@ -123,7 +132,9 @@ The pip package includes a CLI that you can use to score sentences.
 
 ```
 usage: lm-scorer [-h] [--model-name MODEL_NAME] [--tokens] [--log-prob]
-                 [--reduce REDUCE] [--cuda CUDA] [--debug]
+                 [--reduce REDUCE] [--batch-size BATCH_SIZE]
+                 [--significant-figures SIGNIFICANT_FIGURES] [--cuda CUDA]
+                 [--debug]
                  sentences-file-path
 
 Get sentences probability using a language model.
@@ -144,6 +155,11 @@ optional arguments:
                         Reduce strategy applied on token probabilities to get
                         the sentence score. Available strategies are: prod,
                         mean, gmean, hmean.
+  --batch-size BATCH_SIZE, -b BATCH_SIZE
+                        Number of sentences to process in parallel.
+  --significant-figures SIGNIFICANT_FIGURES, -sf SIGNIFICANT_FIGURES
+                        Number of significant figures to use when printing
+                        numbers.
   --cuda CUDA           If provided it runs the model on the given cuda
                         device.
   --debug               If provided it provides additional logging in case of
@@ -179,7 +195,7 @@ poetry run task lint
 # Run the static type checker
 poetry run task types
 # Run the tests
-poetry run task tests
+poetry run task test
 ```
 
 
