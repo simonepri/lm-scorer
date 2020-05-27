@@ -1,7 +1,9 @@
 from typing import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 import torch
-from transformers import BertForMaskedLM, BertTokenizer
+from torch.nn.utils.rnn import pad_sequence
+from transformers import BertForMaskedLM, AutoTokenizer
+from transformers.tokenization_utils import BatchEncoding
 
 from .abc.transformers import TransformersLMScorer
 
@@ -11,7 +13,14 @@ class BERTLMScorer(TransformersLMScorer):
     Use BERT to score a sentence following the idea describe in the paper
     Effective Sentence Scoring Method Using BERT for Speech Recognition. J. Shin, Y. Lee, Kyomin Jung
 
-    Roughly the idea is to mask successively each token in the sentences and compute the log prob of true token
+    The idea is to mask successively each token in the sentences and compute the log prob of true token.
+
+    For instance, if the sentence to score is "I like tennis":
+        1- Create the following masked sentences
+        2- Compute the log-likelihood of each target word that has been masked using context from both sides
+            - [CLS] [MASK]  like  tennis [SEP]  -> P_bert(tok[1] == I) ?
+            - [CLS]   I    [MASK] tennis [SEP]  -> P_bert(tok[2] == like) ?
+            - [CLS]   I     like  [MASK] [SEP]  -> P_bert(tok[3] == tennis) ?
     """
 
     # @overrides
@@ -19,72 +28,148 @@ class BERTLMScorer(TransformersLMScorer):
         super()._build(model_name, options)
 
         # pylint: disable=attribute-defined-outside-init
-        self.tokenizer = BertTokenizer.from_pretrained(model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            model_name, use_fast=True, pad_token="<|pad|>"
+        )
+
         self.model = BertForMaskedLM.from_pretrained(model_name)
+        self.model.resize_token_embeddings(len(self.tokenizer))
         self.model.eval()
         if "device" in options:
             self.model.to(options["device"])
-        self.batch_size = options["batch_size"] if "batch_size" in options else 1
 
-    def _generate_mask_sentences(self, tokens: List[str]) -> List[List[str]]:
-        mask_sentences = [tokens.copy() for _ in range(len(tokens))]
-        for i in range(len(tokens)):
-            mask_sentences[i][i] = self.tokenizer.mask_token
-        return [
-            [self.tokenizer.cls_token] + mask_sentence + [self.tokenizer.sep_token]
-            for mask_sentence in mask_sentences
-        ]
+    def _generate_batch_of_mask_sentences(self, text: List[str]) -> Iterator[Dict]:
+        """
+        Generate on the fly the mask sentences
+        Once batch_size mask sentences has been generated, yield a batch as a dict containing :
+        - mask_ids : List[torch.Tensor] -> token_ids of each masked sentence
+        - mask_positions : List[int] -> position of the mask in each masked sentence
+        - target_ids: List[int] -> token_id that has been masked in each masked sentence
+        - target_tokens: List[str] -> token thas has been masked in each masked sentence
+        - sentence_index : List[int] -> index w.r.t. text of the sentence that has been masked
+        """
 
-    # @overrides
-    def _tokens_log_prob(
-        self, text: str
-    ) -> Tuple[torch.FloatTensor, torch.LongTensor, List[str]]:
-        if text == "":
-            return (torch.zeros((1,)), torch.zeros((1,)), [""])  # type: ignore # pylint: disable=not-callable
-        device = self.model.device
-        tokens = self.tokenizer.tokenize(text)
+        batch: Dict[str, List] = {
+            "mask_ids": [],
+            "mask_positions": [],
+            "target_ids": [],
+            "target_tokens": [],
+            "sentence_index": [],
+        }
 
-        # Store the full encoded sentences it to easily retrieve the token score in mask scores sentences
-        encoded_sentence = self.tokenizer.convert_tokens_to_ids(tokens)
-        seq_len = len(tokens)
-        mask_tok_sentences = self._generate_mask_sentences(tokens)
+        for sent_index, sentence in enumerate(text):
+            encoding: BatchEncoding = self.tokenizer.encode_plus(
+                sentence, add_special_tokens=True, return_tensors="pt",
+            )
 
-        # ids.shape = [seq_len, seq_len + 2]
-        ids = torch.stack(
-            [
-                torch.tensor(  # pylint: disable=not-callable
-                    self.tokenizer.convert_tokens_to_ids(mask_tok_sentence),
-                    device=device,
-                    dtype=torch.long,
-                )
-                for mask_tok_sentence in mask_tok_sentences
-            ],
-            dim=0,
+            sent_ids = encoding["input_ids"].to(self.model.device)
+
+            # Create masked sentences by successively masking
+            # each token except CLS and SEP special tokens
+            for i in range(1, sent_ids.shape[1] - 1):
+                mask_ids = sent_ids.detach().clone().view(-1)
+                mask_ids[i] = self.tokenizer.mask_token_id
+
+                new_mask_sentences = {
+                    "mask_ids": mask_ids,
+                    "mask_positions": i,
+                    "target_ids": sent_ids[0, i].item(),
+                    "target_tokens": encoding.tokens(0)[i],
+                    "sentence_index": sent_index,
+                }
+
+                # Add the mask sentence and its features to the current batch
+                for key in new_mask_sentences:
+                    batch[key].append(new_mask_sentences[key])
+
+                # When batch size has reached batch_size, yield it and re-initialize it
+                if len(batch["mask_ids"]) == self.batch_size:
+                    yield batch
+                    for key in batch:
+                        batch[key] = []
+
+        # Yield remaining mask sentences
+        if len(batch["mask_ids"]) > 0:
+            yield batch
+
+    def _mask_tokens_log_prob_for_batch(self, batch: Dict[str, List]) -> List[float]:
+        """
+        Given a batch, compute and return the log prob of target token in each mask sentences
+        """
+        batch_size = len(batch["mask_ids"])
+        pad_mask_ids = pad_sequence(
+            batch["mask_ids"],
+            batch_first=True,
+            padding_value=self.tokenizer.pad_token_id,
         )
+        attention_mask = pad_mask_ids != self.tokenizer.pad_token_id
 
-        # Compute all prediction logits by batch
-        i = 0
-        all_pred_scores = []
         with torch.no_grad():
-            while i + self.batch_size < seq_len:
-                all_pred_scores.append(self.model(ids[i : i + self.batch_size])[0])
-                i += self.batch_size
-            if i < seq_len:
-                all_pred_scores.append(self.model(ids[i:])[0])
+            logits: torch.Tensor = self.model(
+                pad_mask_ids, attention_mask=attention_mask
+            )[0]
 
-        # pred_scores.shape = [seq_len, seq_len + 2, vocab_size]
-        pred_scores = torch.cat(all_pred_scores, dim=0)
+        # Retrieve the logits of mask tokens
+        # mask_pred_logits.shape = [batch_size, vocac_size]
+        mask_pred_logits = logits[range(batch_size), batch["mask_positions"], :]
 
-        # retrieve only logits corresponding to mask tokens and do not take into account CLS and SEP special tokens.
-        # mask_pred_logits.shape = [seq_len, vocab_size]
-        mask_pred_logits = pred_scores[range(seq_len), range(1, 1 + seq_len), :]
+        # target_score.shape = [batch_size,]
+        target_scores = mask_pred_logits[range(batch_size), batch["target_ids"]]
+        target_log_probs = target_scores - mask_pred_logits.logsumexp(dim=1)
 
-        # tokens_scores.shape = [seq_len, ]
-        tokens_scores = mask_pred_logits[range(seq_len), encoded_sentence]
+        return target_log_probs.tolist()
 
-        log_probs = tokens_scores - mask_pred_logits.logsumexp(dim=1)
+    @staticmethod
+    def _gather_result_by_sentence(
+        result: Dict[str, List]
+    ) -> List[Tuple[torch.DoubleTensor, torch.LongTensor, List[str]]]:
 
-        return log_probs, torch.tensor(encoded_sentence), tokens  # type: ignore # pylint: disable=not-callable
+        outputs: List[Tuple[torch.DoubleTensor, torch.LongTensor, List[str]]] = []
+        mask_to_sent_idx = result["sentence_index"]
+        for sent_idx in set(mask_to_sent_idx):
+            begin_idx = mask_to_sent_idx.index(sent_idx)
+            end_idx = len(mask_to_sent_idx) - mask_to_sent_idx[::-1].index(sent_idx)
+
+            sent_log_probs = torch.tensor(  # pylint: disable=not-callable
+                result["target_log_probs"][begin_idx:end_idx]
+            )
+            sent_ids = torch.tensor(  # pylint: disable=not-callable
+                result["target_ids"][begin_idx:end_idx]
+            )
+
+            sent_log_probs = cast(torch.DoubleTensor, sent_log_probs)
+            sent_ids = cast(torch.LongTensor, sent_ids)
+            sent_tokens: List[str] = result["target_tokens"][begin_idx:end_idx]
+
+            outputs.append((sent_log_probs, sent_ids, sent_tokens))
+
+        return outputs
+
+    def _tokens_log_prob(
+        self, text: List[str]
+    ) -> List[Tuple[torch.DoubleTensor, torch.LongTensor, List[str]]]:
+        result: Dict[str, List] = {
+            "target_log_probs": [],
+            "target_ids": [],
+            "target_tokens": [],
+            "sentence_index": [],
+        }
+
+        # Compute mask token score by batch of batch_size
+        for batch in self._generate_batch_of_mask_sentences(text):
+            batch["target_log_probs"] = self._mask_tokens_log_prob_for_batch(batch)
+            for key in result:
+                result[key].extend(batch[key])
+
+        return self._gather_result_by_sentence(result)
+
+    def _tokens_log_prob_for_batch(
+        self, text: List[str]
+    ) -> List[Tuple[torch.DoubleTensor, torch.LongTensor, List[str]]]:
+        # Because masked sentences are generated,
+        # the number of sentences that will be input in the LM are not known in advance
+        # As a result, this scorer do not use the BatchedLMScorer structure
+        ...
 
     # @overrides
     @classmethod
