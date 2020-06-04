@@ -3,6 +3,7 @@ from typing import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 import torch
 from transformers import AutoTokenizer, GPT2LMHeadModel
+from transformers import GPT2_PRETRAINED_CONFIG_ARCHIVE_MAP
 from transformers.tokenization_utils import BatchEncoding
 
 from .abc.transformers import TransformersLMScorer
@@ -81,4 +82,4 @@ class GPT2LMScorer(TransformersLMScorer):
     # @overrides
     @classmethod
     def _supported_model_names(cls) -> Iterable[str]:
-        return GPT2LMHeadModel.pretrained_model_archive_map.keys()
+        return GPT2_PRETRAINED_CONFIG_ARCHIVE_MAP.keys()
