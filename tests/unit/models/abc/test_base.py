@@ -2,7 +2,7 @@
 import math
 import pytest  # pylint: disable=unused-import
 
-import scipy
+from scipy import stats
 import torch
 from lm_scorer.models.abc.base import LMScorer
 
@@ -48,10 +48,10 @@ class FixtureLMScorer(LMScorer):
                 score = probs.mean()
             elif reduce == "gmean":
                 # pylint: disable=not-callable
-                score = torch.tensor(scipy.stats.gmean(probs.numpy()))
+                score = torch.tensor(stats.gmean(probs.numpy()))
             elif reduce == "hmean":
                 # pylint: disable=not-callable
-                score = torch.tensor(scipy.stats.hmean(probs.numpy()))
+                score = torch.tensor(stats.hmean(probs.numpy()))
             else:
                 raise ValueError("Unrecognized scoring strategy: %s" % reduce)
             if log:

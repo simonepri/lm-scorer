@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lm-scorer"
-version = "0.4.2"
+version = "0.5.0"
 description = "Language Model based sentences scoring library"
 authors = ["Simone Primarosa <simonepri@outlook.com>"]
 license = "MIT"
@@ -24,10 +24,10 @@ format = "python -m black lm_scorer tests"
 test = "python -m pytest --cov=lm_scorer tests --verbose"
 
 [tool.poetry.dependencies]
-python = ">=3.6,<3.8"
+python = ">=3.6.2,<4.0"
 pip = ">=20.0.0"
-transformers = "^2.9.0"
-torch = "^1.4.0"
+transformers = ">=4.4"
+torch = ">=1.4.0"
 
 [tool.poetry.dev-dependencies]
 taskipy = "^1.2.1"

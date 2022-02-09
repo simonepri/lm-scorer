@@ -44,7 +44,7 @@ class GPT2LMScorer(TransformersLMScorer):
         # TODO: Handle overflowing elements for long sentences
         text = list(map(self._add_special_tokens, text))
         encoding: BatchEncoding = self.tokenizer.batch_encode_plus(
-            text, return_tensors="pt",
+            text, return_tensors="pt", padding=True
         )
         with torch.no_grad():
             ids = encoding["input_ids"].to(self.model.device)
