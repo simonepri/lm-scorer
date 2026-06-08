@@ -13,17 +13,18 @@ class LMScorer(ABC):
     @overload
     def sentence_score(
         self, text: str, log: bool = False, reduce: str = "prod"
-    ) -> float:
-        ...
+    ) -> float: ...
 
     @overload
     def sentence_score(
         self, text: List[str], log: bool = False, reduce: str = "prod"
-    ) -> List[float]:
-        ...
+    ) -> List[float]: ...
 
     def sentence_score(
-        self, text: Union[str, List[str]], log: bool = False, reduce: str = "prod",
+        self,
+        text: Union[str, List[str]],
+        log: bool = False,
+        reduce: str = "prod",
     ) -> Union[float, List[float]]:
         sentences = [text] if isinstance(text, str) else text
         scores: List[float] = []
@@ -55,18 +56,14 @@ class LMScorer(ABC):
     @overload
     def tokens_score(
         self, text: str, log: bool = False
-    ) -> Tuple[List[float], List[int], List[str]]:
-        ...
+    ) -> Tuple[List[float], List[int], List[str]]: ...
 
     @overload
     def tokens_score(
         self, text: List[str], log: bool = False
-    ) -> List[Tuple[List[float], List[int], List[str]]]:
-        ...
+    ) -> List[Tuple[List[float], List[int], List[str]]]: ...
 
-    def tokens_score(
-        self, text: Union[str, List[str]], log: bool = False
-    ) -> Union[
+    def tokens_score(self, text: Union[str, List[str]], log: bool = False) -> Union[
         Tuple[List[float], List[int], List[str]],
         List[Tuple[List[float], List[int], List[str]]],
     ]:
@@ -94,10 +91,10 @@ class LMScorer(ABC):
     @abstractmethod
     def _tokens_log_prob(
         self, text: List[str]
-    ) -> List[Tuple[torch.DoubleTensor, torch.LongTensor, List[str]]]:
-        ...  # pragma: no cover
+    ) -> List[
+        Tuple[torch.DoubleTensor, torch.LongTensor, List[str]]
+    ]: ...  # pragma: no cover
 
     @classmethod
     @abstractmethod
-    def _supported_model_names(cls) -> Iterable[str]:
-        ...  # pragma: no cover
+    def _supported_model_names(cls) -> Iterable[str]: ...  # pragma: no cover

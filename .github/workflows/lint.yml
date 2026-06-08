@@ -12,23 +12,21 @@ jobs:
     name: Black & Pylint & Mypy
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.7
+          python-version: '3.13'
       - name: Install dependencies
         run: |
-          python -m pip install -qq --upgrade pip
-          pip install -qq poetry
+          python -m pip install --upgrade pip
+          pip install poetry
           poetry install
       - name: Check if files are correctly formatted with black
-        run: |
-          poetry run task format --check --diff
+        run: poetry run task format --check --diff
       - name: Lint with pylint
         run: |
           poetry run task lint --disable=E --exit-zero
           poetry run task lint -E
       - name: Perform static type checking with mypy
-        run: |
-          poetry run task types
+        run: poetry run task types
