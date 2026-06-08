@@ -1,4 +1,3 @@
-# pylint: disable=abstract-method
 from .batch import BatchedLMScorer
 
 

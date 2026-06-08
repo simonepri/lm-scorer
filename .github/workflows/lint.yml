@@ -9,12 +9,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Black & Pylint & Mypy
+    name: Ruff & Mypy
     steps:
       - name: Setup repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.13'
       - name: Install dependencies
@@ -22,11 +22,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install poetry
           poetry install
-      - name: Check if files are correctly formatted with black
-        run: poetry run task format --check --diff
-      - name: Lint with pylint
-        run: |
-          poetry run task lint --disable=E --exit-zero
-          poetry run task lint -E
+      - name: Lint with ruff
+        run: poetry run task lint
+      - name: Check formatting with ruff
+        run: poetry run ruff format --check lm_scorer tests
       - name: Perform static type checking with mypy
         run: poetry run task types

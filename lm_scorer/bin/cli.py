@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
-from typing import *  # pylint: disable=wildcard-import,unused-wildcard-import
-
 import argparse
 import itertools
 import os
 import sys
+from typing import Generator, Iterable, List, TypeVar
 
 import torch
 
@@ -103,11 +102,11 @@ def validate_args(args: argparse.Namespace) -> None:
         raise ValueError("The number of significant figures must be positive.")
 
 
-T1 = TypeVar("T1")  # pylint: disable=invalid-name
+T1 = TypeVar("T1")
 
 
 def grouper(iterable: Iterable[T1], size: int) -> Generator[List[T1], None, None]:
-    it = iter(iterable)  # pylint: disable=invalid-name
+    it = iter(iterable)
     while True:
         chunk = list(itertools.islice(it, size))
         if not chunk:
@@ -116,7 +115,6 @@ def grouper(iterable: Iterable[T1], size: int) -> Generator[List[T1], None, None
 
 
 def main(args: argparse.Namespace) -> None:
-    # pylint: disable=too-many-locals
     if args.sentences_file_path == "-":
         sentences_stream = sys.stdin
     else:
@@ -162,7 +160,7 @@ def run() -> None:
         main(args)
     except KeyboardInterrupt:
         print("\nAborted!")
-    except Exception as err:  # pylint: disable=broad-except
+    except Exception as err:
         if args.debug:
             raise
         print("Error: %s" % err)

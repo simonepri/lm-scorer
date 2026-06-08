@@ -1,7 +1,6 @@
-from typing import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from abc import ABC, abstractmethod
-
 import math
+from abc import ABC, abstractmethod
+from typing import Any, Dict, Iterable, List, Tuple, Union, cast, overload
 
 import torch
 
@@ -63,7 +62,9 @@ class LMScorer(ABC):
         self, text: List[str], log: bool = False
     ) -> List[Tuple[List[float], List[int], List[str]]]: ...
 
-    def tokens_score(self, text: Union[str, List[str]], log: bool = False) -> Union[
+    def tokens_score(
+        self, text: Union[str, List[str]], log: bool = False
+    ) -> Union[
         Tuple[List[float], List[int], List[str]],
         List[Tuple[List[float], List[int], List[str]]],
     ]:
@@ -85,7 +86,6 @@ class LMScorer(ABC):
         return cls._supported_model_names()
 
     def _build(self, model_name: str, options: Dict[str, Any]) -> None:
-        # pylint: disable=attribute-defined-outside-init, unused-argument
         self.model_name = model_name
 
     @abstractmethod

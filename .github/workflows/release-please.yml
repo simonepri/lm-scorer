@@ -23,9 +23,9 @@ jobs:
       # done in the same job because a release created with GITHUB_TOKEN does not
       # trigger a separate `on: release` workflow. (Zenodo still mints the DOI
       # from the release webhook, independently of Actions.)
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: ${{ steps.release.outputs.release_created }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         if: ${{ steps.release.outputs.release_created }}
         with:
           python-version: '3.13'
