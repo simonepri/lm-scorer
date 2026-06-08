@@ -19,13 +19,25 @@ class GPT2LMScorer(TransformersLMScorer):
         # sentence ends; pass eos=False to omit it from the score (see #12).
         self.add_bos = options.get("bos", True)
         self.add_eos = options.get("eos", True)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
+
+        # Forward any remaining options to the Hugging Face loaders so callers
+        # can pass e.g. local_files_only, revision, cache_dir, token or
+        # torch_dtype (see #8).
+        hf_kwargs = {
+            key: value
+            for key, value in options.items()
+            if key not in ("batch_size", "device", "bos", "eos")
+        }
+
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            model_name, **{"use_fast": True, **hf_kwargs}
+        )
         # Add the pad token to GPT2 dictionary.
         # len(tokenizer) = vocab_size + 1
         self.tokenizer.add_special_tokens({"additional_special_tokens": ["<|pad|>"]})
         self.tokenizer.pad_token = "<|pad|>"
 
-        self.model = GPT2LMHeadModel.from_pretrained(model_name)
+        self.model = GPT2LMHeadModel.from_pretrained(model_name, **hf_kwargs)
         # We need to resize the embedding layer because we added the pad token.
         self.model.resize_token_embeddings(len(self.tokenizer))
         self.model.eval()
