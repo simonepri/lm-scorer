@@ -1,0 +1,24 @@
+name: pr-title
+
+# PRs are squash-merged, so the PR title becomes the commit on master. This
+# keeps that title a valid conventional commit so release-please can derive
+# the next version and changelog from it.
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+permissions:
+  pull-requests: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
