@@ -25,7 +25,7 @@ test = "python -m pytest --cov=lm_scorer tests --verbose"
 
 [tool.poetry.dependencies]
 python = ">=3.11,<4.0"
-transformers = ">=4.30,<6"
+transformers = ">=4.46,<6"
 torch = "^2.2"
 
 [tool.poetry.group.dev.dependencies]
