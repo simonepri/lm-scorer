@@ -129,3 +129,17 @@ def describe_tokens_log_prob_for_batch():
 
         assert ids == exp_ids
         assert tokens == exp_tokens
+
+
+def describe_special_tokens_options():
+    # pylint: disable=protected-access
+    def should_include_the_eos_token_by_default():
+        scorer = GPT2LMScorer("gpt2")
+        _, _, tokens = scorer._tokens_log_prob_for_batch(["Hello World!"])[0]
+        assert tokens[-1] == "<|endoftext|>"
+
+    def should_omit_the_eos_token_when_eos_is_false():
+        scorer = GPT2LMScorer("gpt2", eos=False)
+        _, _, tokens = scorer._tokens_log_prob_for_batch(["Hello World!"])[0]
+        assert "<|endoftext|>" not in tokens
+        assert tokens == ["Hello", "ĠWorld", "!"]
