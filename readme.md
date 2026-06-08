@@ -81,9 +81,11 @@ pip install lm-scorer
 import torch
 from lm_scorer.models.auto import AutoLMScorer as LMScorer
 
-# Available models
+# Available models (these are the well-tested ones; any Hugging Face causal LM
+# also works, e.g. multilingual GPT-2s, GPT-Neo, OPT, BLOOM, Llama, ...).
 list(LMScorer.supported_model_names())
 # => ["gpt2", "gpt2-medium", "gpt2-large", "gpt2-xl", distilgpt2"]
+# scorer = LMScorer.from_pretrained("ai-forever/mGPT")  # e.g. a multilingual model
 
 # Load model to cpu or cuda
 device = "cuda:0" if torch.cuda.is_available() else "cpu"

@@ -2,11 +2,14 @@ import itertools
 from typing import Any, Iterable
 
 from .abc.base import LMScorer
+from .causal import CausalLMScorer
 from .gpt2 import GPT2LMScorer
 
 
 class AutoLMScorer:
     MODEL_CLASSES = [GPT2LMScorer]
+    # Any model name that isn't matched above is loaded as a generic causal LM.
+    FALLBACK_CLASS = CausalLMScorer
 
     def __init__(self):
         raise EnvironmentError(
@@ -21,10 +24,8 @@ class AutoLMScorer:
             if model_name not in model_class.supported_model_names():
                 continue
             return model_class(model_name, **kwargs)
-        raise ValueError(
-            "Unrecognized model name."
-            "Can be one of: %s" % ", ".join(cls.supported_model_names()),
-        )
+        # Any other model is loaded as a generic causal language model.
+        return cls.FALLBACK_CLASS(model_name, **kwargs)
 
     @classmethod
     def supported_model_names(cls) -> Iterable[str]:

@@ -27,8 +27,8 @@ def parse_args() -> argparse.Namespace:
         "-m",
         type=str,
         default="gpt2",
-        help="The pretrained language model to use. Can be one of: %s."
-        % ", ".join(LMScorer.supported_model_names()),
+        help="The pretrained language model to use. Any Hugging Face causal LM"
+        " works (e.g. %s)." % ", ".join(LMScorer.supported_model_names()),
     )
     parser.add_argument(
         "--tokens",
