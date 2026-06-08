@@ -94,6 +94,11 @@ device = "cuda:0" if torch.cuda.is_available() else "cpu"
 batch_size = 1
 scorer = LMScorer.from_pretrained("gpt2", device=device, batch_size=batch_size)
 
+# By default the bos and eos (<|endoftext|>) tokens are added when scoring, so the
+# score includes the probability that the sentence ends where it does. Pass
+# eos=False (and/or bos=False) to exclude them:
+# scorer = LMScorer.from_pretrained("gpt2", device=device, eos=False)
+
 # Return token probabilities (provide log=True to return log probabilities)
 scorer.tokens_score("I like this package.")
 # => (scores, ids, tokens)

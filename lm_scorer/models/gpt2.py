@@ -14,6 +14,11 @@ class GPT2LMScorer(TransformersLMScorer):
         super()._build(model_name, options)
 
         # pylint: disable=attribute-defined-outside-init
+        # Whether to prepend/append the bos/eos tokens when scoring. Appending
+        # the eos token (the default) also scores the probability that the
+        # sentence ends; pass eos=False to omit it from the score (see #12).
+        self.add_bos = options.get("bos", True)
+        self.add_eos = options.get("eos", True)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
         # Add the pad token to GPT2 dictionary.
         # len(tokenizer) = vocab_size + 1
@@ -28,7 +33,9 @@ class GPT2LMScorer(TransformersLMScorer):
             self.model.to(options["device"])
 
     def _add_special_tokens(self, text: str) -> str:
-        return self.tokenizer.bos_token + text + self.tokenizer.eos_token
+        bos = self.tokenizer.bos_token if self.add_bos else ""
+        eos = self.tokenizer.eos_token if self.add_eos else ""
+        return bos + text + eos
 
     # @overrides
     def _tokens_log_prob_for_batch(
