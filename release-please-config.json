@@ -5,7 +5,8 @@
       "release-type": "python",
       "package-name": "lm-scorer",
       "bump-minor-pre-major": true,
-      "skip-changelog": true
+      "skip-changelog": true,
+      "include-component-in-tag": false
     }
   }
 }
