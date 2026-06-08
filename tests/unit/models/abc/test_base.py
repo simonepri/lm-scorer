@@ -1,9 +1,8 @@
-# pylint: disable=missing-module-docstring,missing-function-docstring,unused-variable,too-many-locals,too-many-statements
 import math
-import pytest  # pylint: disable=unused-import
 
 import scipy.stats
 import torch
+
 from lm_scorer.models.abc.base import LMScorer
 
 
@@ -19,9 +18,7 @@ class FixtureLMScorer(LMScorer):
         outputs = []
         for sentence in text:
             scores, ids, tokens = model(sentence)
-            # pylint: disable=not-callable
             scores = torch.tensor(scores)
-            # pylint: disable=not-callable
             ids = torch.tensor(ids)
             output = (scores, ids, tokens)
             outputs.append(output)
@@ -47,10 +44,8 @@ class FixtureLMScorer(LMScorer):
             elif reduce == "mean":
                 score = probs.mean()
             elif reduce == "gmean":
-                # pylint: disable=not-callable
                 score = torch.tensor(scipy.stats.gmean(probs.numpy()))
             elif reduce == "hmean":
-                # pylint: disable=not-callable
                 score = torch.tensor(scipy.stats.hmean(probs.numpy()))
             else:
                 raise ValueError("Unrecognized scoring strategy: %s" % reduce)

@@ -1,6 +1,6 @@
-# pylint: disable=missing-module-docstring,missing-function-docstring,unused-variable,too-many-locals,too-many-statements
 import math
-import pytest  # pylint: disable=unused-import
+
+import pytest
 
 from lm_scorer.models.gpt2 import GPT2LMScorer
 
@@ -20,7 +20,6 @@ def describe_supported_model_names():
 
 
 def describe_tokens_log_prob_for_batch():
-    # pylint: disable=protected-access
     scorer = GPT2LMScorer("gpt2")
 
     def should_work_on_zero_sentences():
@@ -132,7 +131,6 @@ def describe_tokens_log_prob_for_batch():
 
 
 def describe_special_tokens_options():
-    # pylint: disable=protected-access
     def should_include_the_eos_token_by_default():
         scorer = GPT2LMScorer("gpt2")
         _, _, tokens = scorer._tokens_log_prob_for_batch(["Hello World!"])[0]

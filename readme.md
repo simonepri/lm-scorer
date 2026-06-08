@@ -23,16 +23,12 @@
     <img src="https://github.com/simonepri/lm-scorer/actions/workflows/test-ubuntu.yml/badge.svg" alt="Test Ubuntu status" />
   </a>
   <br />
-  <!-- Code style -->
-  <a href="https://github.com/ambv/black">
-    <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style" />
-  </a>
-  <!-- Linter -->
-  <a href="https://github.com/PyCQA/pylint">
-    <img src="https://img.shields.io/badge/linter-pylint-ce963f.svg" alt="Linter" />
+  <!-- Linter & formatter -->
+  <a href="https://github.com/astral-sh/ruff">
+    <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff" />
   </a>
   <!-- Types checker -->
-  <a href="https://github.com/PyCQA/pylint">
+  <a href="https://github.com/python/mypy">
     <img src="https://img.shields.io/badge/types%20checker-mypy-296db2.svg" alt="Types checker" />
   </a>
   <!-- Test runner -->

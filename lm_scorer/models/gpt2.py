@@ -1,9 +1,7 @@
-from typing import *  # pylint: disable=wildcard-import,unused-wildcard-import
-
+from typing import Any, Dict, Iterable, List, Tuple, cast
 
 import torch
-from transformers import AutoTokenizer, GPT2LMHeadModel
-from transformers import BatchEncoding
+from transformers import AutoTokenizer, BatchEncoding, GPT2LMHeadModel
 
 from .abc.transformers import TransformersLMScorer
 
@@ -13,7 +11,6 @@ class GPT2LMScorer(TransformersLMScorer):
     def _build(self, model_name: str, options: Dict[str, Any]) -> None:
         super()._build(model_name, options)
 
-        # pylint: disable=attribute-defined-outside-init
         # Whether to prepend/append the bos/eos tokens when scoring. Appending
         # the eos token (the default) also scores the probability that the
         # sentence ends; pass eos=False to omit it from the score (see #12).

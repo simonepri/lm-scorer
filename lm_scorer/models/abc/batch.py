@@ -1,6 +1,5 @@
-# pylint: disable=abstract-method
-from typing import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from abc import abstractmethod
+from typing import Any, Dict, List, Tuple
 
 import torch
 
@@ -15,7 +14,6 @@ class BatchedLMScorer(LMScorer):
         batch_size = options.get("batch_size", 1)
         if batch_size < 1:
             raise ValueError("The batch_size option must be positive")
-        # pylint: disable=attribute-defined-outside-init
         self.batch_size = batch_size
 
     # @overrides

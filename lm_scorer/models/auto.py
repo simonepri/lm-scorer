@@ -1,6 +1,5 @@
-from typing import *  # pylint: disable=wildcard-import,unused-wildcard-import
-
 import itertools
+from typing import Any, Iterable
 
 from .abc.base import LMScorer
 from .gpt2 import GPT2LMScorer
