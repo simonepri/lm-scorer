@@ -45,7 +45,10 @@ def describe_sentence_score_for_english():
     def should_give_lower_score_to_sentences_with_adverbs_errors():
         # ERRANT - ADV error
         sentence_pairs = [
-            ("Let us finish this quickly!", "Let us finish this speedily!",),
+            (
+                "Let us finish this quickly!",
+                "Let us finish this speedily!",
+            ),
         ]
         assert_score_of_sentence_pairs(scorer, sentence_pairs)
 
@@ -70,16 +73,28 @@ def describe_sentence_score_for_english():
                 "The restaurant is in the middle of my home town.",
                 "The restaurant is in the middle of the my home town.",
             ),
-            ("I am Italian.", "I am a Italian.",),
-            ("I am a teacher.", "I am teacher.",),
-            ("She gave me some advice.", "She gave me an advice.",),
+            (
+                "I am Italian.",
+                "I am a Italian.",
+            ),
+            (
+                "I am a teacher.",
+                "I am teacher.",
+            ),
+            (
+                "She gave me some advice.",
+                "She gave me an advice.",
+            ),
         ]
         assert_score_of_sentence_pairs(scorer, sentence_pairs)
 
     def should_give_lower_score_to_sentences_with_morphology_errors():
         # ERRANT - MORPH error
         sentence_pairs = [
-            ("I will quickly solve this.", "I will quick solve this.",),
+            (
+                "I will quickly solve this.",
+                "I will quick solve this.",
+            ),
         ]
         assert_score_of_sentence_pairs(scorer, sentence_pairs)
 
@@ -106,35 +121,50 @@ def describe_sentence_score_for_english():
     def should_give_lower_score_to_sentences_with_noun_number_errors():
         # ERRANT - NOUN:NUM error
         sentence_pairs = [
-            ("She has too many cats.", "She has too many cat.",),
+            (
+                "She has too many cats.",
+                "She has too many cat.",
+            ),
         ]
         assert_score_of_sentence_pairs(scorer, sentence_pairs)
 
     def should_give_lower_score_to_sentences_with_noun_possissive_errors():
         # ERRANT - NOUN:POSS error
         sentence_pairs = [
-            ("My friend's boss is leaving.", "My friends boss is leaving.",),
+            (
+                "My friend's boss is leaving.",
+                "My friends boss is leaving.",
+            ),
         ]
         assert_score_of_sentence_pairs(scorer, sentence_pairs)
 
     def should_give_lower_score_to_sentences_with_orthography_errors():
         # ERRANT - ORTH error
         sentence_pairs = [
-            ("You are my best friend.", "You are my bestfriend.",),
+            (
+                "You are my best friend.",
+                "You are my bestfriend.",
+            ),
         ]
         assert_score_of_sentence_pairs(scorer, sentence_pairs)
 
     def should_give_lower_score_to_sentences_with_particle_errors():
         # ERRANT - PART error
         sentence_pairs = [
-            ("Can you look at the kids?", "Can you look in the kids?",),
+            (
+                "Can you look at the kids?",
+                "Can you look in the kids?",
+            ),
         ]
         assert_score_of_sentence_pairs(scorer, sentence_pairs)
 
     def should_give_lower_score_to_sentences_with_preposition_errors():
         # ERRANT - PREP error
         sentence_pairs = [
-            ("Can you look at them?", "Can you look in them?",),
+            (
+                "Can you look at them?",
+                "Can you look in them?",
+            ),
         ]
         assert_score_of_sentence_pairs(scorer, sentence_pairs)
 
@@ -151,8 +181,14 @@ def describe_sentence_score_for_english():
     def should_give_lower_score_to_sentences_with_punctuation_errors():
         # ERRANT - PUNCT error
         sentence_pairs = [
-            ("I like dogs, cats, and dolphins.", "I like dogs cats and dolphins.",),
-            ("I can do this, but not now.", "I can do this but not now.",),
+            (
+                "I like dogs, cats, and dolphins.",
+                "I like dogs cats and dolphins.",
+            ),
+            (
+                "I can do this, but not now.",
+                "I can do this but not now.",
+            ),
         ]
         assert_score_of_sentence_pairs(scorer, sentence_pairs)
 
@@ -169,39 +205,69 @@ def describe_sentence_score_for_english():
     def should_give_lower_score_to_sentences_with_verb_errors():
         # ERRANT - VERB error
         sentence_pairs = [
-            ("I can walk there.", "I can ambulate there.",),
+            (
+                "I can walk there.",
+                "I can ambulate there.",
+            ),
         ]
         assert_score_of_sentence_pairs(scorer, sentence_pairs)
 
     def should_give_lower_score_to_sentences_with_verb_form_errors():
         # ERRANT - VERB:FORM error
         sentence_pairs = [
-            ("I danced yesterday.", "I dancing yesterday.",),
-            ("I am going to run a marathon.", "I am go to run a marathon.",),
-            ("I am going to run a marathon.", "I am going to running a marathon.",),
+            (
+                "I danced yesterday.",
+                "I dancing yesterday.",
+            ),
+            (
+                "I am going to run a marathon.",
+                "I am go to run a marathon.",
+            ),
+            (
+                "I am going to run a marathon.",
+                "I am going to running a marathon.",
+            ),
         ]
         assert_score_of_sentence_pairs(scorer, sentence_pairs)
 
     def should_give_lower_score_to_sentences_with_verb_inflection_errors():
         # ERRANT - VERB:INFL error
         sentence_pairs = [
-            ("I got arrested yesterday.", "I getted arrested yesterday.",),
-            ("You flipped the wrong coin.", "You fliped the wrong coin.",),
+            (
+                "I got arrested yesterday.",
+                "I getted arrested yesterday.",
+            ),
+            (
+                "You flipped the wrong coin.",
+                "You fliped the wrong coin.",
+            ),
         ]
         assert_score_of_sentence_pairs(scorer, sentence_pairs)
 
     def should_give_lower_score_to_sentences_with_verb_subj_agreement_errors():
         # ERRANT - VERB:SVA error
         sentence_pairs = [
-            ("I think he has the virus.", "I think he have the virus.",),
-            ("They said he is sick.", "They said he are sick.",),
+            (
+                "I think he has the virus.",
+                "I think he have the virus.",
+            ),
+            (
+                "They said he is sick.",
+                "They said he are sick.",
+            ),
         ]
         assert_score_of_sentence_pairs(scorer, sentence_pairs)
 
     def should_give_lower_score_to_sentences_with_verb_tense_errors():
         # ERRANT - VERB:TENSE error
         sentence_pairs = [
-            ("He ate the pie yesterday.", "He eats the pie yesterday.",),
-            ("The pie was eaten by him yesterday.", "The pie eats by him yesterday.",),
+            (
+                "He ate the pie yesterday.",
+                "He eats the pie yesterday.",
+            ),
+            (
+                "The pie was eaten by him yesterday.",
+                "The pie eats by him yesterday.",
+            ),
         ]
         assert_score_of_sentence_pairs(scorer, sentence_pairs)

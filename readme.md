@@ -11,16 +11,16 @@
   </a>
   <br />
   <!-- Lint -->
-  <a href="https://github.com/simonepri/lm-scorer/actions?query=workflow:lint+branch:master">
-    <img src="https://github.com/simonepri/lm-scorer/workflows/lint/badge.svg?branch=master" alt="Lint status" />
+  <a href="https://github.com/simonepri/lm-scorer/actions/workflows/lint.yml">
+    <img src="https://github.com/simonepri/lm-scorer/actions/workflows/lint.yml/badge.svg" alt="Lint status" />
   </a>
   <!-- Test - macOS -->
-  <a href="https://github.com/simonepri/lm-scorer/actions?query=workflow:test-macos+branch:master">
-    <img src="https://github.com/simonepri/lm-scorer/workflows/test-macos/badge.svg?branch=master" alt="Test macOS status" />
+  <a href="https://github.com/simonepri/lm-scorer/actions/workflows/test-macos.yml">
+    <img src="https://github.com/simonepri/lm-scorer/actions/workflows/test-macos.yml/badge.svg" alt="Test macOS status" />
   </a>
   <!-- Test - Ubuntu -->
-  <a href="https://github.com/simonepri/lm-scorer/actions?query=workflow:test-ubuntu+branch:master">
-    <img src="https://github.com/simonepri/lm-scorer/workflows/test-ubuntu/badge.svg?branch=master" alt="Test Ubuntu status" />
+  <a href="https://github.com/simonepri/lm-scorer/actions/workflows/test-ubuntu.yml">
+    <img src="https://github.com/simonepri/lm-scorer/actions/workflows/test-ubuntu.yml/badge.svg" alt="Test Ubuntu status" />
   </a>
   <br />
   <!-- Code style -->
@@ -50,7 +50,7 @@
   <br />
   <!-- License -->
   <a href="https://github.com/simonepri/lm-scorer/tree/master/license">
-    <img src="https://img.shields.io/github/license/simonepri/lm-scorer.svg" alt="Project license" />
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="Project license" />
   </a>
   <!-- DOI -->
   <a href="https://doi.org/10.5281/zenodo.20584992">

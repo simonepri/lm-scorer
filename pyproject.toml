@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lm-scorer"
-version = "0.4.2"
+version = "0.5.0"
 description = "Language Model based sentences scoring library"
 authors = ["Simone Primarosa <simonepri@outlook.com>"]
 license = "MIT"
@@ -18,30 +18,29 @@ packages = [
 lm-scorer = 'lm_scorer.bin.cli:run'
 
 [tool.taskipy.tasks]
-lint = "python -m pylint lm_scorer tests -v --output-format colorized --disable duplicate-code,bad-continuation --generated-members=torch.*"
+lint = "python -m pylint lm_scorer tests -v --output-format colorized --disable duplicate-code --generated-members=torch.*"
 types = "python -m mypy lm_scorer tests --ignore-missing-imports"
 format = "python -m black lm_scorer tests"
 test = "python -m pytest --cov=lm_scorer tests --verbose"
 
 [tool.poetry.dependencies]
-python = ">=3.6,<3.8"
-pip = ">=20.0.0"
-transformers = "^2.9.0"
-torch = "^1.4.0"
+python = ">=3.11,<4.0"
+transformers = ">=4.30,<6"
+torch = "^2.2"
 
 [tool.poetry.dev-dependencies]
-taskipy = "^1.2.1"
-black = "~19.10b0"
-pylint = "^2.5.2"
-mypy = "~0.770"
-pytest = "^5.4.2"
-pytest-cov = "^2.8.1"
-pytest-mock = "^3.0.0"
-pytest-sugar = "~0.9.3"
-pytest-describe = "^1.0.0"
-scipy = "^1.4.1"
-torch = "^1.4.0"
+taskipy = "^1.12"
+black = "^26.0"
+pylint = "^3.1"
+mypy = "^1.9"
+pytest = "^8.1"
+pytest-cov = "^5.0"
+pytest-mock = "^3.14"
+pytest-sugar = "^1.0"
+pytest-describe = "^2.2"
+scipy = "^1.11"
+torch = "^2.2"
 
 [build-system]
-requires = ["poetry >=1,<2"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

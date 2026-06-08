@@ -3,8 +3,7 @@ from typing import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 import torch
 from transformers import AutoTokenizer, GPT2LMHeadModel
-from transformers import GPT2_PRETRAINED_CONFIG_ARCHIVE_MAP
-from transformers.tokenization_utils import BatchEncoding
+from transformers import BatchEncoding
 
 from .abc.transformers import TransformersLMScorer
 
@@ -15,9 +14,7 @@ class GPT2LMScorer(TransformersLMScorer):
         super()._build(model_name, options)
 
         # pylint: disable=attribute-defined-outside-init
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            model_name, use_fast=True, add_special_tokens=False
-        )
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
         # Add the pad token to GPT2 dictionary.
         # len(tokenizer) = vocab_size + 1
         self.tokenizer.add_special_tokens({"additional_special_tokens": ["<|pad|>"]})
@@ -43,8 +40,10 @@ class GPT2LMScorer(TransformersLMScorer):
 
         # TODO: Handle overflowing elements for long sentences
         text = list(map(self._add_special_tokens, text))
-        encoding: BatchEncoding = self.tokenizer.batch_encode_plus(
-            text, return_tensors="pt",
+        encoding: BatchEncoding = self.tokenizer(
+            text,
+            return_tensors="pt",
+            padding=True,
         )
         with torch.no_grad():
             ids = encoding["input_ids"].to(self.model.device)
@@ -82,4 +81,4 @@ class GPT2LMScorer(TransformersLMScorer):
     # @overrides
     @classmethod
     def _supported_model_names(cls) -> Iterable[str]:
-        return GPT2_PRETRAINED_CONFIG_ARCHIVE_MAP.keys()
+        return ["gpt2", "gpt2-medium", "gpt2-large", "gpt2-xl", "distilgpt2"]
