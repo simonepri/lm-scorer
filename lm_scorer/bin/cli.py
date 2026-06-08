@@ -26,7 +26,7 @@ def parse_args() -> argparse.Namespace:
         "--model-name",
         "-m",
         type=str,
-        default="gpt2",
+        default="Qwen/Qwen2.5-0.5B",
         help="The pretrained language model to use. Any Hugging Face causal LM"
         " works (e.g. %s)." % ", ".join(LMScorer.supported_model_names()),
     )
