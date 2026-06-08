@@ -54,7 +54,7 @@
   </a>
   <!-- DOI -->
   <a href="https://doi.org/10.5281/zenodo.20584992">
-    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.20584992.svg" alt="DOI" />
+    <img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20584992-blue.svg" alt="DOI" />
   </a>
 </p>
 <p align="center">
