@@ -35,28 +35,34 @@ class CausalLMScorer(TransformersLMScorer):
         self.tokenizer = AutoTokenizer.from_pretrained(
             model_name, **{"use_fast": True, **hf_kwargs}
         )
-        # Causal LMs are scored left-to-right, so pad on the right and reuse the
-        # eos token as pad when the tokenizer has none (no embedding resize).
-        self.tokenizer.padding_side = "right"
-        if self.tokenizer.pad_token is None:
-            self.tokenizer.pad_token = self.tokenizer.eos_token
-
         self.model = AutoModelForCausalLM.from_pretrained(model_name, **hf_kwargs)
         self.model.eval()
         if "device" in options:
             self.model.to(options["device"])
 
+        # Causal LMs are scored left-to-right, so pad on the right.
+        self.tokenizer.padding_side = "right"
+        # Some published models ship a tokenizer whose special tokens sit beyond
+        # the model's trained embedding range. Only use bos/eos when their id is
+        # representable, and pad with an in-range token (padding is masked out of
+        # scoring anyway), so the embedding lookup never goes out of bounds and no
+        # untrained embedding pollutes the scores.
+        vocab_size = self.model.config.vocab_size
+
+        def in_range(token_id):
+            return token_id is not None and token_id < vocab_size
+
+        self.use_bos = self.add_bos and in_range(self.tokenizer.bos_token_id)
+        self.use_eos = self.add_eos and in_range(self.tokenizer.eos_token_id)
+        if not in_range(self.tokenizer.pad_token_id):
+            if in_range(self.tokenizer.eos_token_id):
+                self.tokenizer.pad_token = self.tokenizer.eos_token
+            else:
+                self.tokenizer.pad_token = self.tokenizer.convert_ids_to_tokens(0)
+
     def _add_special_tokens(self, text: str) -> str:
-        bos = (
-            self.tokenizer.bos_token
-            if self.add_bos and self.tokenizer.bos_token
-            else ""
-        )
-        eos = (
-            self.tokenizer.eos_token
-            if self.add_eos and self.tokenizer.eos_token
-            else ""
-        )
+        bos = self.tokenizer.bos_token if self.use_bos else ""
+        eos = self.tokenizer.eos_token if self.use_eos else ""
         return bos + text + eos
 
     # @overrides

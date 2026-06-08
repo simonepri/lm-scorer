@@ -28,3 +28,12 @@ def describe_other_causal_models():
         good = scorer.sentence_score("The cat sat on the mat.", log=True)
         bad = scorer.sentence_score("Cat the mat on sat the.", log=True)
         assert good > bad
+
+    def should_score_when_special_tokens_are_beyond_the_model_vocab():
+        # dbmdz/german-gpt2 ships an eos token id beyond its trained embeddings;
+        # the scorer must skip those untrained bos/eos tokens (rather than crash
+        # or pollute the scores) and still rank a grammatical sentence higher.
+        scorer = CausalLMScorer("dbmdz/german-gpt2", batch_size=2)
+        good = scorer.sentence_score("Der Hund läuft im Park.", log=True)
+        bad = scorer.sentence_score("Park im läuft Hund der.", log=True)
+        assert good > bad
