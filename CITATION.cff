@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+type: software
+title: lm-scorer
+abstract: Language Model based sentences scoring library.
+authors:
+  - family-names: Primarosa
+    given-names: Simone
+repository-code: "https://github.com/simonepri/lm-scorer"
+url: "https://github.com/simonepri/lm-scorer"
+license: MIT
+version: 0.4.2
+date-released: 2020-06-04
+doi: 10.5281/zenodo.20584992
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.20584992
+    description: Concept DOI (resolves to the latest version)
+  - type: doi
+    value: 10.5281/zenodo.20584993
+    description: Version 0.4.2
+keywords:
+  - language-model
+  - gpt-2
+  - nlp
+  - sentence-scoring
+  - perplexity

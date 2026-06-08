@@ -52,6 +52,10 @@
   <a href="https://github.com/simonepri/lm-scorer/tree/master/license">
     <img src="https://img.shields.io/github/license/simonepri/lm-scorer.svg" alt="Project license" />
   </a>
+  <!-- DOI -->
+  <a href="https://doi.org/10.5281/zenodo.20584992">
+    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.20584992.svg" alt="DOI" />
+  </a>
 </p>
 <p align="center">
   📃 Language Model based sentences scoring library
@@ -197,6 +201,43 @@ poetry run task types
 # Run the tests
 poetry run task test
 ```
+
+
+## Citation
+
+If you use `lm-scorer` in your research, please cite it using the metadata in
+[`CITATION.cff`](CITATION.cff), or the following BibTeX entry:
+
+```bibtex
+@software{primarosa_lm_scorer,
+  author    = {Primarosa, Simone},
+  title     = {{lm-scorer}: Language Model based sentences scoring library},
+  year      = {2020},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.20584992},
+  url       = {https://github.com/simonepri/lm-scorer}
+}
+```
+
+The concept DOI [`10.5281/zenodo.20584992`](https://doi.org/10.5281/zenodo.20584992)
+always resolves to the latest release; each release also has its own version DOI on Zenodo.
+
+
+## Used in research
+
+`lm-scorer` has been used in the following peer-reviewed publications:
+
+- Schuster, S., & Linzen, T. (2022). *When a sentence does not introduce a discourse entity, Transformer-based models still sometimes refer to it.* NAACL 2022. https://doi.org/10.18653/v1/2022.naacl-main.71
+- Gupta, P., Tsvetkov, Y., & Bigham, J. P. (2021). *Synthesizing Adversarial Negative Responses for Robust Response Ranking and Evaluation.* Findings of the ACL: ACL-IJCNLP 2021. https://doi.org/10.18653/v1/2021.findings-acl.338
+- Kasner, Z., & Dušek, O. (2020). *Data-to-Text Generation with Iterative Text Editing.* INLG 2020. https://aclanthology.org/2020.inlg-1.9
+- Don-Yehiya, S., Choshen, L., & Abend, O. (2022). *PreQuEL: Quality Estimation of Machine Translation Outputs in Advance.* EMNLP 2022. https://doi.org/10.18653/v1/2022.emnlp-main.767
+- Alqahtani, A., Sarioglu Kayi, E., Hamidian, S., Compton, M., & Diab, M. (2022). *A Quantitative and Qualitative Analysis of Schizophrenia Language.* CLPsych @ NAACL 2022. https://arxiv.org/abs/2201.10430
+- Zhang, Z., Mita, M., & Komachi, M. (2023). *ClozEx: A Task toward Generation of English Cloze Explanation.* Findings of EMNLP 2023. https://aclanthology.org/2023.findings-emnlp.347
+- Krause, L., Sommerauer, P., & Vossen, P. (2022). *Towards More Informative List Verbalisations.* KGSum @ ISWC 2022. https://ceur-ws.org/Vol-3257/paper14.pdf
+- Zhang, J., Mishra, A., Avinesh, P. V. S., Patwardhan, S., & Agarwal, S. (2022). *Can Open Domain Question Answering Systems Answer Visual Knowledge Questions?* arXiv:2202.04306. https://arxiv.org/abs/2202.04306
+- Harel, R., Elboher, Y., & Pinter, Y. (2024). *Protecting Privacy in Classifiers by Token Manipulation.* PrivateNLP @ ACL 2024. https://arxiv.org/abs/2407.01334
+- Rodrigues, R. C., Inuzuka, M. A., Gomes, J. R. S. A., et al. (2021). *Zero-shot Hashtag Segmentation for Multilingual Sentiment Analysis.* arXiv:2112.03213. https://arxiv.org/abs/2112.03213
+- Li, J., Ren, M., Gao, Y., & Yang, Y. (2023). *Ask to Understand: Question Generation for Multi-hop Question Answering.* CCL 2023. https://arxiv.org/abs/2203.09073
 
 
 ## Authors
