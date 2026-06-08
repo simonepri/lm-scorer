@@ -36,7 +36,9 @@ class GPT2LMScorer(TransformersLMScorer):
 
         self.model = GPT2LMHeadModel.from_pretrained(model_name, **hf_kwargs)
         # We need to resize the embedding layer because we added the pad token.
-        self.model.resize_token_embeddings(len(self.tokenizer))
+        # mean_resizing=False keeps the (never-scored) pad embedding cheap to
+        # initialise and avoids a noisy transformers log line.
+        self.model.resize_token_embeddings(len(self.tokenizer), mean_resizing=False)
         self.model.eval()
         if "device" in options:
             self.model.to(options["device"])
