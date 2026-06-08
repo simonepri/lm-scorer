@@ -143,3 +143,24 @@ def describe_special_tokens_options():
         _, _, tokens = scorer._tokens_log_prob_for_batch(["Hello World!"])[0]
         assert "<|endoftext|>" not in tokens
         assert tokens == ["Hello", "ĠWorld", "!"]
+
+
+def describe_from_pretrained_kwargs():
+    def should_forward_extra_kwargs_to_huggingface(mocker):
+        tokenizer = mocker.patch("lm_scorer.models.gpt2.AutoTokenizer")
+        model = mocker.patch("lm_scorer.models.gpt2.GPT2LMHeadModel")
+
+        GPT2LMScorer(
+            "gpt2", revision="abc123", local_files_only=True, bos=False, batch_size=2
+        )
+
+        tok_kwargs = tokenizer.from_pretrained.call_args.kwargs
+        model_kwargs = model.from_pretrained.call_args.kwargs
+        assert tok_kwargs["revision"] == "abc123"
+        assert tok_kwargs["local_files_only"] is True
+        assert model_kwargs["revision"] == "abc123"
+        assert model_kwargs["local_files_only"] is True
+        # lm-scorer's own options must not leak to the Hugging Face loaders.
+        for own in ("bos", "eos", "device", "batch_size"):
+            assert own not in tok_kwargs
+            assert own not in model_kwargs
