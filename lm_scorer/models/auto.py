@@ -4,10 +4,11 @@ import itertools
 
 from .abc.base import LMScorer
 from .gpt2 import GPT2LMScorer
+from .bert import BERTLMScorer
 
 
 class AutoLMScorer:
-    MODEL_CLASSES = [GPT2LMScorer]
+    MODEL_CLASSES = [GPT2LMScorer, BERTLMScorer]
 
     def __init__(self):
         raise EnvironmentError(
